@@ -147,8 +147,8 @@
     .sound-btn:hover { color: var(--ink); }
     .sound-btn:focus-visible { outline: 1px solid var(--red); outline-offset: 3px; border-radius: 2px; }
 
-    /* Muted state — red and at 60% so it's clearly "off" */
-    .sound-btn.is-muted { color: var(--red); opacity: 0.6; }
+    /* Muted state */
+    .sound-btn.is-muted { color: var(--red); opacity: 0.55; }
 
     /* Waiting for first interaction — pulse gently to attract attention */
     .sound-btn.needs-tap {
@@ -246,17 +246,9 @@
   <audio id="sfxOn"   src="modal_open.mp3"       preload="auto"></audio>
   <audio id="sfxOff"  src="modal_close.mp3"      preload="auto"></audio>
 
-  <button class="sound-btn needs-tap" id="soundBtn" aria-label="Toggle music" title="Toggle music">
-    <!-- Icon swapped by JS: sound-on or sound-off -->
-    <svg id="iconOn" viewBox="0 0 24 24" aria-hidden="true">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-    </svg>
-    <svg id="iconOff" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-      <line x1="23" y1="9" x2="17" y2="15"/>
-      <line x1="17" y1="9" x2="23" y2="15"/>
+  <button class="sound-btn needs-tap" id="soundBtn" aria-label="Music muted — tap to play">
+    <svg id="soundIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <!-- content set by JS based on volume state -->
     </svg>
   </button>
 
@@ -374,61 +366,91 @@
     tick();
     setInterval(tick, 1000);
 
-    /* ── Background music + tap sounds ── */
+    /* ── Background music + volume states ── */
     var bgm    = document.getElementById('bgm');
     var sfxOn  = document.getElementById('sfxOn');
     var sfxOff = document.getElementById('sfxOff');
-    var btn     = document.getElementById('soundBtn');
-    var iconOn  = document.getElementById('iconOn');
-    var iconOff = document.getElementById('iconOff');
-    var muted   = false;
-    var started = false;
+    var btn    = document.getElementById('soundBtn');
+    var icon   = document.getElementById('soundIcon');
 
-    bgm.volume    = 0.25;
     sfxOn.volume  = 0.6;
     sfxOff.volume = 0.6;
 
-    function playSfx(el) {
+    /*
+      3-state cycle:  muted → low → high → muted
+      Tapping when muted starts music + sfxOn
+      Tapping into muted stops & plays sfxOff
+    */
+    var STATES = [
+      {
+        muted: true,  vol: 0,    label: 'Music muted — tap to play',
+        sfxEnter: 'off',
+        paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
+               '<line x1="23" y1="9" x2="17" y2="15"/>' +
+               '<line x1="17" y1="9" x2="23" y2="15"/>'
+      },
+      {
+        muted: false, vol: 0.25, label: 'Low volume — tap to raise',
+        sfxEnter: 'on',
+        paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
+               '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
+      },
+      {
+        muted: false, vol: 0.75, label: 'High volume — tap to lower',
+        sfxEnter: null,
+        paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
+               '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>' +
+               '<path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
+      }
+    ];
+
+    var stateIdx = 0; /* start muted */
+    var started  = false;
+
+    function playSfx(sfx) {
+      if (!sfx) return;
+      var el = sfx === 'on' ? sfxOn : sfxOff;
       el.currentTime = 0;
       el.play().catch(function () {});
     }
 
-    function setMuted(m, playSound) {
-      muted     = m;
-      bgm.muted = m;
-      iconOn.style.display  = m ? 'none' : '';
-      iconOff.style.display = m ? ''     : 'none';
-      btn.classList.toggle('is-muted', m);
-      btn.setAttribute('aria-label', m ? 'Unmute music' : 'Mute music');
-      if (playSound) playSfx(m ? sfxOff : sfxOn);
-    }
-
-    function startMusic() {
-      if (started) return;
-      started = true;
-      btn.classList.remove('needs-tap');
-      bgm.play().then(function () {
-        setMuted(false, true); /* play "on" sound */
-      }).catch(function () {
-        started = false;
-      });
+    function applyState(idx, withSfx) {
+      var s = STATES[idx];
+      bgm.muted  = s.muted;
+      bgm.volume = s.vol;
+      icon.innerHTML = s.paths;
+      btn.setAttribute('aria-label', s.label);
+      btn.classList.toggle('is-muted', s.muted);
+      if (withSfx) playSfx(s.sfxEnter);
+      stateIdx = idx;
     }
 
     btn.addEventListener('click', function () {
-      if (!started) {
-        startMusic();
-      } else {
-        setMuted(!muted, true);
+      var next = (stateIdx + 1) % STATES.length;
+
+      if (!started && next !== 0) {
+        /* First interaction — start music */
+        btn.classList.remove('needs-tap');
+        bgm.play().then(function () {
+          started = true;
+          applyState(next, true);
+        }).catch(function () {});
+        return;
       }
+
+      if (!started) return; /* can't go to muted before started */
+      applyState(next, true);
     });
 
-    /* Try autoplay silently */
+    /* Try silent autoplay (works on desktop with prior interaction) */
+    bgm.volume = 0.25;
     bgm.play().then(function () {
       started = true;
       btn.classList.remove('needs-tap');
-      setMuted(false, false); /* no sfx on silent autoplay */
+      stateIdx = 0; /* so next click goes to idx 1 (low) */
+      applyState(1, false); /* start at low, no sfx on auto */
     }).catch(function () {
-      setMuted(true, false);
+      applyState(0, false); /* stay muted */
     });
   })();
   </script>
