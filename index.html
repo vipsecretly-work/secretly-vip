@@ -125,12 +125,18 @@
       word-break: break-word;
     }
 
+    /* Dimmed scrambling chars — makes settled text clearly readable */
+    h1 .sc {
+      color: var(--dim);
+      opacity: 0.5;
+    }
+
     /* Cursor blink during decode */
     h1.decoding::after {
       content: '|';
       color: var(--red);
-      animation: blink 0.6s step-end infinite;
-      margin-left: 2px;
+      animation: blink 0.7s step-end infinite;
+      margin-left: 1px;
     }
 
     @keyframes blink {
@@ -214,23 +220,23 @@
 
   <script>
   (function () {
-    /* ── Matrix decode characters ── */
-    var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?><#@|/\\$%^&*~';
+    /* ── Decode characters — letters + digits only, no HTML-breaking symbols ── */
+    var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-    /* ── Quotes: hacking/launch themed, random each visit ── */
+    /* ── Quotes: intriguing but not threatening ── */
     var QUOTES = [
       'Establishing secure connection.',
       'Decrypting the launch sequence.',
-      'Access denied. For now.',
       'Systems are being compiled.',
       'Signal acquired. Stand by.',
-      'Bypassing the firewall.',
       'The protocol is being finalized.',
       'Loading classified content.',
       'Patience is a root privilege.',
-      'Cracking the launch code.',
       'Initializing final sequence.',
-      'Breach imminent. Please wait.',
+      'Something worth the wait.',
+      'Almost there. Keep watching.',
+      'Quietly coming together.',
+      'The signal is almost clear.',
     ];
 
     function rchar() {
@@ -258,23 +264,39 @@
       }, 280);
     }
 
-    /* Patch decode() to accept an optional onDone callback */
     function decode(el, text, onDone) {
       var FRAME_MS = 30;
-      var STEP_MS  = 32;
+      var STEP_MS  = 36;
       var start    = Date.now();
       el.classList.add('decoding');
 
       var timer = setInterval(function () {
-        var elapsed = Date.now() - start;
-        var out = '';
+        var elapsed  = Date.now() - start;
+        var settled  = '';
+        var scramble = '';
+
         for (var i = 0; i < text.length; i++) {
           var ch = text[i];
-          if (ch === ' ')               out += ' ';
-          else if (elapsed > i * STEP_MS) out += ch;
-          else                           out += rchar();
+          if (ch === ' ') {
+            if (elapsed > i * STEP_MS) settled += ' ';
+            else scramble += ' ';
+          } else if (elapsed > i * STEP_MS) {
+            /* Flush any pending scramble before adding settled char */
+            if (scramble.length) {
+              settled += '<span class="sc">' + scramble + '</span>';
+              scramble = '';
+            }
+            settled += ch;
+          } else {
+            scramble += rchar();
+          }
         }
-        el.textContent = out;
+
+        /* Remaining scramble chars */
+        el.innerHTML = scramble.length
+          ? settled + '<span class="sc">' + scramble + '</span>'
+          : settled;
+
         if (elapsed > (text.length - 1) * STEP_MS + 150) {
           clearInterval(timer);
           el.classList.remove('decoding');
