@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://ipapi.co; font-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>secretly.vip — coming soon</title>
   <!--
@@ -96,27 +96,39 @@
       bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
       top: auto;
       left: calc(1.25rem + env(safe-area-inset-left, 0px));
-      right: calc(1.25rem + env(safe-area-inset-right, 0px));
+      right: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
       font-size: 0.65rem;
       font-weight: 400;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--dim);
       z-index: 12;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       line-height: 1;
       transition: opacity 0.25s ease;
     }
-    /* When music bar is up, clock moves to top-right (JS fades it out/in) */
+    .globe-icon {
+      display: inline-block;
+      font-size: 0.75rem;
+      line-height: 1;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .user-region {
+      color: var(--dim);
+      opacity: 0.7;
+    }
+    /* When music bar is up: moves to top-right */
     .clock.at-top {
       bottom: auto;
       top: calc(1.25rem + env(safe-area-inset-top, 0px));
       left: auto;
       right: calc(1.25rem + env(safe-area-inset-right, 0px));
-      text-align: right;
+      flex-direction: row-reverse;
     }
 
     /* ── Autoplay hint (mobile) ── */
@@ -290,7 +302,11 @@
 </head>
 <body>
   <span class="brand">secretly.vip</span>
-  <span class="clock" id="clock" aria-live="polite" aria-label="Your local time"></span>
+  <div class="clock" id="clockWrap" aria-live="polite" aria-label="Your local time and location">
+    <span class="globe-icon" id="globeIcon" aria-hidden="true">🌍</span>
+    <span id="clock"></span>
+    <span class="user-region" id="userRegion"></span>
+  </div>
 
   <audio id="introAudio" src="music/opening.mp3"          preload="auto"></audio>
   <audio id="bgmAudio"   src="music/background_music.mp3" preload="auto" loop></audio>
@@ -402,10 +418,12 @@
     }
 
     /* ── Local clock ── */
-    var clockEl = document.getElementById('clock');
-    var DAYS_S  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    var DAYS_L  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    var MONTHS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var clockEl  = document.getElementById('clock');
+    var globeEl  = document.getElementById('globeIcon');
+    var regionEl = document.getElementById('userRegion');
+    var DAYS_S   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var DAYS_L   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var MONTHS   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
     function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -421,6 +439,29 @@
 
     tick();
     setInterval(tick, 1000);
+
+    /* ── Rotating globe (cycles 🌍→🌎→🌏) ── */
+    var GLOBES = ['🌍', '🌎', '🌏'];
+    var gi = 0;
+    setInterval(function () {
+      gi = (gi + 1) % 3;
+      globeEl.textContent = GLOBES[gi];
+    }, 900);
+
+    /* ── IP geolocation (no permission needed) ── */
+    var CONTINENTS = {
+      AF: 'Africa', AN: 'Antarctica', AS: 'Asia',
+      EU: 'Europe', NA: 'North America', OC: 'Oceania', SA: 'South America'
+    };
+    fetch('https://ipapi.co/json/')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var region = CONTINENTS[d.continent_code] || d.country_name || '';
+        var city   = d.city || d.region || '';
+        var label  = region && city ? region + ' / ' + city : region || city;
+        if (label) regionEl.textContent = '· ' + label;
+      })
+      .catch(function () {});
 
     /* ── Audio ──
        Phase 1 — opening.mp3: plays once, no controls, untouchable.
@@ -465,7 +506,7 @@
       document.body.classList.add('bar-up');
       refreshButtons();
       /* Fade clock out → reposition to top-right → fade back in */
-      var cl = document.getElementById('clock');
+      var cl = document.getElementById('clockWrap');
       cl.style.opacity = '0';
       setTimeout(function () {
         cl.classList.add('at-top');
