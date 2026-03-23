@@ -297,7 +297,8 @@
   <span class="brand">secretly.vip</span>
   <span class="clock" id="clock" aria-live="polite" aria-label="Your local time"></span>
 
-  <!-- Music decoded via Web Audio API for truly gapless looping -->
+  <audio id="introAudio" src="music/opening.mp3"          preload="auto"></audio>
+  <audio id="bgmAudio"   src="music/background_music.mp3" preload="auto" loop></audio>
 
   <div class="sound-tip" id="soundTip" aria-hidden="true">tap to listen</div>
 
@@ -422,13 +423,12 @@
     tick();
     setInterval(tick, 1000);
 
-    /* ── Audio: splash intro → gapless background loop ──
-       Calls ctx.resume() + src.start() synchronously inside the click
-       handler so iOS Safari and strict-autoplay Chrome both unlock correctly.
-    ── */
-    var btn  = document.getElementById('soundBtn');
-    var icon = document.getElementById('soundIcon');
-    var tip  = document.getElementById('soundTip');
+    /* ── Audio: intro plays once, then background loops ── */
+    var introEl = document.getElementById('introAudio');
+    var bgmEl   = document.getElementById('bgmAudio');
+    var btn     = document.getElementById('soundBtn');
+    var icon    = document.getElementById('soundIcon');
+    var tip     = document.getElementById('soundTip');
     var tipTimer, tipDismissTimer;
 
     function showTip() {
@@ -443,39 +443,26 @@
 
     var STATES = [
       {
-        gain: 0,    label: 'Music muted — tap to play',
+        vol: 0,    label: 'Music muted — tap to play',
         paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
                '<line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
       },
       {
-        gain: 0.25, label: 'Low volume — tap to raise',
+        vol: 0.3,  label: 'Low volume — tap to raise',
         paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
                '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
       },
       {
-        gain: 0.75, label: 'High volume — tap to lower',
+        vol: 0.8,  label: 'High volume — tap to lower',
         paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
                '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>' +
                '<path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
       }
     ];
 
-    var ACtx        = window.AudioContext || window.webkitAudioContext;
-    var ctx         = null;
-    var gainNode    = null;
-    var introBuf    = null;
-    var loopBuf     = null;
-    var loopSrc     = null;
-    var phase       = 'idle'; /* 'idle' | 'intro' | 'loop' */
-    var stateIdx    = 0;
-    var pendingPlay = false;  /* user tapped before intro buffer loaded */
-
-    function setGain(val) {
-      if (!gainNode) return;
-      /* Anchor current value first so linearRamp has a start point */
-      gainNode.gain.setValueAtTime(gainNode.gain.value, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(val, ctx.currentTime + 0.35);
-    }
+    var phase    = 'idle'; /* 'idle' | 'intro' | 'loop' */
+    var stateIdx = 0;
+    var active   = null;   /* currently playing <audio> element */
 
     function applyState(idx) {
       var s = STATES[idx];
@@ -484,102 +471,58 @@
       btn.classList.toggle('is-muted', idx === 0);
       btn.classList.toggle('vol-low',  idx === 1);
       btn.classList.toggle('vol-high', idx === 2);
-      setGain(s.gain);
       stateIdx = idx;
+      if (active) {
+        active.volume = s.vol;
+        active.muted  = (idx === 0);
+      }
     }
 
-    function startLoop() {
-      if (loopSrc) { try { loopSrc.stop(); } catch (e) {} loopSrc.disconnect(); }
-      loopSrc = ctx.createBufferSource();
-      loopSrc.buffer = loopBuf;
-      loopSrc.loop   = true;
-      loopSrc.connect(gainNode);
-      loopSrc.start(0);
+    function startBgm() {
+      active  = bgmEl;
+      bgmEl.volume = STATES[stateIdx].vol;
+      bgmEl.muted  = (stateIdx === 0);
+      bgmEl.play().catch(function () {});
       phase = 'loop';
+      /* Auto-unmute to low if the user had muted during the intro */
       if (stateIdx === 0) applyState(1);
     }
 
+    /* When intro finishes, seamlessly start the background loop */
+    introEl.addEventListener('ended', startBgm);
+
     function startIntro() {
-      if (phase !== 'idle' || !introBuf) return;
-      phase = 'intro';
-
-      var src = ctx.createBufferSource();
-      src.buffer = introBuf;
-      src.loop   = false;
-      src.connect(gainNode);
-      src.onended = function () {
-        if (loopBuf) {
-          startLoop();
-        } else {
-          var wait = setInterval(function () {
-            if (loopBuf) { clearInterval(wait); startLoop(); }
-          }, 80);
-        }
-      };
-      src.start(0);
-
+      if (phase !== 'idle') return;
+      phase   = 'intro';
+      active  = introEl;
+      introEl.volume = STATES[stateIdx > 0 ? stateIdx : 1].vol;
+      introEl.muted  = false;
+      introEl.play().catch(function () {});
       hideTip();
       btn.classList.remove('needs-tap');
-      applyState(1);
-    }
-
-    function initCtx() {
-      if (ctx) return;
-      ctx      = new ACtx();
-      gainNode = ctx.createGain();
-      gainNode.gain.value = 0;
-      gainNode.connect(ctx.destination);
-
-      fetch('splash_logo_audio.mp3')
-        .then(function (r) { return r.arrayBuffer(); })
-        .then(function (ab) { return ctx.decodeAudioData(ab); })
-        .then(function (buf) {
-          introBuf = buf;
-          /* pendingPlay = user already tapped but buffer wasn't ready yet */
-          if (pendingPlay) { pendingPlay = false; startIntro(); }
-        })
-        .catch(function () {});
-
-      fetch('background_music.mp3')
-        .then(function (r) { return r.arrayBuffer(); })
-        .then(function (ab) { return ctx.decodeAudioData(ab); })
-        .then(function (buf) { loopBuf = buf; })
-        .catch(function () {});
+      applyState(stateIdx > 0 ? stateIdx : 1);
     }
 
     btn.addEventListener('click', function () {
       hideTip();
-
       if (phase === 'idle') {
-        if (!ctx) initCtx();
-
-        /* Unlock AudioContext synchronously within the user gesture.
-           Do NOT await the promise — call resume() + start() in the same
-           synchronous frame so iOS Safari accepts it. */
-        if (ctx.state !== 'running') ctx.resume();
-
-        if (introBuf) {
-          startIntro();
-        } else {
-          /* Buffer still loading — mark pending, show visual feedback */
-          pendingPlay = true;
-          btn.classList.remove('needs-tap');
-          applyState(1);
-        }
+        startIntro();
         return;
       }
-
-      /* Intro or loop already running — cycle volume states */
       applyState((stateIdx + 1) % STATES.length);
     });
 
-    /* Show hint on load; startIntro() / startLoop() will dismiss it */
+    /* Show hint; try autoplay on desktop (will silently fail on mobile) */
     applyState(0);
     showTip();
     tipDismissTimer = setTimeout(hideTip, 10000);
 
-    /* Prefetch buffers in background so they're ready when user taps */
-    initCtx();
+    introEl.play().then(function () {
+      phase  = 'intro';
+      active = introEl;
+      btn.classList.remove('needs-tap');
+      applyState(1);
+    }).catch(function () { /* mobile blocks autoplay — wait for tap */ });
   })();
   </script>
 </body>
