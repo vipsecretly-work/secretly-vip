@@ -3,21 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Lock page to same-origin assets only (no external scripts / CDNs). Inline styles allowed. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>secretly.vip — coming soon</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7PkRXMw.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="https://fonts.gstatic.com/s/outfit/v15/QGYvz_MVcBeNP4NJtEtqUYLknw.woff2" as="font" type="font/woff2" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='r' x1='0' y1='0' x2='32' y2='32'%3E%3Cstop offset='0%25' stop-color='%23e53935'/%3E%3Cstop offset='100%25' stop-color='%23b71c1c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23r)'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='19' font-weight='700' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E" />
   <style>
+    /* Fonts ship with the site — no third-party font CDNs */
+    @font-face {
+      font-family: "Cinzel";
+      src: url("fonts/cinzel-latin.woff2") format("woff2");
+      font-weight: 400 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Outfit";
+      src: url("fonts/outfit-latin.woff2") format("woff2");
+      font-weight: 300 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
-      --bg: #faf9f7;
+      --bg: #f5f2ed;
+      --bg-deep: #ebe6df;
       --text: #141212;
-      --muted: rgba(20, 18, 18, 0.5);
-      /* Hot pink / pink-red */
+      --muted: rgba(20, 18, 18, 0.52);
       --accent: #e91e63;
+      --accent-soft: rgba(233, 30, 99, 0.12);
       --accent-hover: #c2185b;
+      --card: rgba(255, 255, 255, 0.72);
+      --shadow-1: 0 1px 2px rgba(20, 10, 30, 0.04);
+      --shadow-2: 0 8px 24px rgba(233, 30, 99, 0.08), 0 2px 8px rgba(20, 10, 30, 0.06);
+      --shadow-3: 0 24px 48px -12px rgba(233, 30, 99, 0.18), 0 12px 32px -8px rgba(20, 10, 40, 0.12);
     }
 
     * {
@@ -33,21 +52,121 @@
     body {
       font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
       font-weight: 400;
-      background: var(--bg);
       color: var(--text);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
       padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 5vw, 2.5rem);
       -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(233, 30, 99, 0.07), transparent 50%),
+        radial-gradient(ellipse 80% 60% at 100% 100%, rgba(194, 24, 91, 0.06), transparent 45%),
+        linear-gradient(165deg, var(--bg) 0%, var(--bg-deep) 100%);
+    }
+
+    /* Twinkling star layers (pure CSS, no images) */
+    .starfield {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .starfield span {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 4px rgba(233, 30, 99, 0.7);
+      opacity: 0.35;
+      animation: twinkle 3.2s ease-in-out infinite;
+    }
+
+    .starfield span:nth-child(odd) {
+      width: 1.5px;
+      height: 1.5px;
+      background: #fff;
+      box-shadow: 0 0 5px rgba(233, 30, 99, 0.9);
+      animation-duration: 2.4s;
+    }
+
+    .starfield span:nth-child(3n) {
+      animation-delay: -0.8s;
+      animation-duration: 4.1s;
+    }
+
+    .starfield span:nth-child(5n) {
+      animation-delay: -1.6s;
+    }
+
+    .starfield span:nth-child(7n) {
+      animation-delay: -2.2s;
+    }
+
+    @keyframes twinkle {
+      0%, 100% {
+        opacity: 0.2;
+        transform: scale(0.85);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .starfield span {
+        animation: none;
+        opacity: 0.45;
+      }
+      .glow-card {
+        transition: none;
+      }
+      .glow-card:hover {
+        transform: none;
+      }
+      .contact a:hover .mail-icon,
+      .contact a:hover {
+        transform: none;
+      }
     }
 
     main {
+      position: relative;
+      z-index: 1;
       width: 100%;
       max-width: 28rem;
+      perspective: 1400px;
+    }
+
+    .glow-card {
       text-align: center;
+      padding: clamp(2rem, 5vw, 2.75rem) clamp(1.5rem, 4vw, 2rem);
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: 1.25rem;
+      box-shadow:
+        inset 0 0 0 1px rgba(233, 30, 99, 0.08),
+        var(--shadow-1),
+        var(--shadow-2);
+      transform-style: preserve-3d;
+      transition:
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    .glow-card:hover {
+      transform: translateY(-8px) rotateX(4deg) rotateY(-3deg) translateZ(12px);
+      box-shadow: var(--shadow-1), var(--shadow-3);
     }
 
     .mark {
@@ -57,7 +176,8 @@
       letter-spacing: 0.32em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 2.25rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
     }
 
     h1 {
@@ -67,14 +187,17 @@
       line-height: 1.35;
       letter-spacing: 0.02em;
       color: var(--text);
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
     }
 
     .rule {
-      width: 3rem;
-      height: 1px;
-      background: var(--accent);
+      width: 3.5rem;
+      height: 2px;
       margin: 2rem auto;
-      opacity: 0.9;
+      border-radius: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.85;
+      box-shadow: 0 0 12px var(--accent-soft);
     }
 
     .contact {
@@ -91,13 +214,14 @@
       font-size: 1rem;
       font-weight: 300;
       letter-spacing: 0.02em;
-      transition: color 0.2s ease;
+      transition: color 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .contact a:hover,
     .contact a:focus-visible {
       color: var(--text);
       outline: none;
+      transform: translateY(-3px) translateZ(8px);
     }
 
     .contact a:focus-visible .email {
@@ -106,13 +230,26 @@
     }
 
     .mail-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
       color: var(--accent);
-      transition: color 0.2s ease, transform 0.2s ease;
+      background: linear-gradient(145deg, #fff 0%, var(--accent-soft) 100%);
+      box-shadow:
+        0 4px 12px rgba(233, 30, 99, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      transition: color 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
     }
 
     .contact a:hover .mail-icon {
       color: var(--accent-hover);
-      transform: translateY(-1px);
+      transform: translateY(-4px) scale(1.05) rotateX(8deg);
+      box-shadow:
+        0 12px 28px rgba(233, 30, 99, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
     }
 
     .mail-icon svg {
@@ -123,6 +260,7 @@
       stroke-width: 1.75;
       stroke-linecap: round;
       stroke-linejoin: round;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.06));
     }
 
     .email {
@@ -145,23 +283,48 @@
   </style>
 </head>
 <body>
-  <main>
-    <p class="mark">secretly.vip</p>
-    <h1>This site's gonna go live soon</h1>
-    <div class="rule" aria-hidden="true"></div>
+  <div class="starfield" aria-hidden="true">
+    <span style="left:8%;top:12%"></span>
+    <span style="left:18%;top:28%"></span>
+    <span style="left:92%;top:8%"></span>
+    <span style="left:78%;top:22%"></span>
+    <span style="left:45%;top:6%"></span>
+    <span style="left:62%;top:18%"></span>
+    <span style="left:12%;top:55%"></span>
+    <span style="left:88%;top:48%"></span>
+    <span style="left:33%;top:72%"></span>
+    <span style="left:55%;top:65%"></span>
+    <span style="left:72%;top:78%"></span>
+    <span style="left:25%;top:88%"></span>
+    <span style="left:95%;top:62%"></span>
+    <span style="left:5%;top:38%"></span>
+    <span style="left:50%;top:42%"></span>
+    <span style="left:38%;top:15%"></span>
+    <span style="left:68%;top:35%"></span>
+    <span style="left:15%;top:75%"></span>
+    <span style="left:82%;top:88%"></span>
+    <span style="left:42%;top:92%"></span>
+  </div>
 
-    <section class="contact" aria-label="Contact">
-      <a href="mailto:support@secretly.vip">
-        <span class="mail-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-            <path d="m22 6-10 7L2 6" />
-          </svg>
-        </span>
-        <span class="label">Reach out</span>
-        <span class="email">support@secretly.vip</span>
-      </a>
-    </section>
+  <main>
+    <div class="glow-card">
+      <p class="mark">secretly.vip</p>
+      <h1>This site's gonna go live soon</h1>
+      <div class="rule" aria-hidden="true"></div>
+
+      <section class="contact" aria-label="Contact">
+        <a href="mailto:support@secretly.vip">
+          <span class="mail-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <path d="m22 6-10 7L2 6" />
+            </svg>
+          </span>
+          <span class="label">Reach out</span>
+          <span class="email">support@secretly.vip</span>
+        </a>
+      </section>
+    </div>
   </main>
 </body>
 </html>

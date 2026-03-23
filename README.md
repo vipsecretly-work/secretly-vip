@@ -4,7 +4,8 @@ Static “coming soon” landing page for [secretly.vip](https://secretly.vip).
 
 ## What’s here
 
-- `index.html` — single-file site (inline CSS, Google Fonts, mail link to `support@secretly.vip`).
+- `index.html` — single-file site (inline CSS, CSP, mail link to `support@secretly.vip`).
+- `fonts/*.woff2` — Cinzel & Outfit (latin), self-hosted (no font CDN).
 - `.gitignore` — ignores OS junk, editors, `node_modules`, env files, etc.
 - `.gitattributes` — consistent line endings (`LF`) for text files.
 - `.editorconfig` — basic spacing/encoding defaults for editors that support it.
