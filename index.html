@@ -122,6 +122,9 @@
       letter-spacing: 0em;
       color: var(--ink);
       opacity: 0;
+      /* Reserve 2-line height so layout never reflows during decode */
+      min-height: 2.6em;
+      overflow: hidden;
       word-break: break-word;
     }
 
