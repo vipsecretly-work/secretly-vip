@@ -122,9 +122,7 @@
       letter-spacing: 0em;
       color: var(--ink);
       opacity: 0;
-      /* Reserve 2-line height so layout never reflows during decode */
-      min-height: 2.6em;
-      overflow: hidden;
+      /* Height is locked dynamically by JS before each decode to prevent layout shake */
       word-break: break-word;
     }
 
@@ -251,19 +249,35 @@
     var qIndex   = Math.floor(Math.random() * QUOTES.length);
     var cycling  = false;
 
+    /* Measure exact pixel height of a text string without showing it */
+    function measureHeight(el, text) {
+      el.textContent = text;
+      var h = el.offsetHeight;
+      el.textContent = '';
+      return h;
+    }
+
     function nextQuote() {
-      if (cycling) return;         /* don't overlap with a running decode */
+      if (cycling) return;
       cycling = true;
 
-      /* Fade out */
       h1.style.transition = 'opacity 0.25s ease';
       h1.style.opacity    = '0';
 
       setTimeout(function () {
         qIndex = (qIndex + 1) % QUOTES.length;
+        var text = QUOTES[qIndex];
+
+        /* Element is invisible (opacity 0) — safe to measure without flash */
         h1.style.transition = '';
-        h1.style.opacity    = '1';
-        decode(h1, QUOTES[qIndex], function () { cycling = false; });
+        var targetH = measureHeight(h1, text);
+        h1.style.height = targetH + 'px';   /* lock height for this quote */
+        h1.style.opacity = '1';
+
+        decode(h1, text, function () {
+          h1.style.height = '';             /* release after decode done */
+          cycling = false;
+        });
       }, 280);
     }
 
@@ -310,10 +324,14 @@
     }
 
     function start() {
+      var text    = QUOTES[qIndex];
+      var targetH = measureHeight(h1, text);
+      h1.style.height  = targetH + 'px';
       h1.style.opacity = '1';
-      decode(h1, QUOTES[qIndex], function () {
+
+      decode(h1, text, function () {
+        h1.style.height = '';
         cycling = false;
-        /* Cycle every 5 seconds after initial decode finishes */
         setInterval(nextQuote, 5000);
       });
     }
