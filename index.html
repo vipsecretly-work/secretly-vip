@@ -95,8 +95,7 @@
       position: fixed;
       bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
       left: calc(1.25rem + env(safe-area-inset-left, 0px));
-      /* Leave 2.75rem on the right for the sound button */
-      right: calc(2.75rem + env(safe-area-inset-right, 0px));
+      right: calc(1.25rem + env(safe-area-inset-right, 0px));
       font-size: 0.65rem;
       font-weight: 400;
       letter-spacing: 0.12em;
@@ -108,110 +107,99 @@
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1;
+      transition: opacity 0.4s ease;
+    }
+    /* hide clock when music bar is visible */
+    body.bar-up .clock { opacity: 0; pointer-events: none; }
+
+    /* ── Autoplay hint (mobile) ── */
+    .intro-hint {
+      position: fixed;
+      bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 10;
+    }
+    .intro-hint.shown { opacity: 1; }
+
+    /* ── Music bar (appears after intro ends) ── */
+    .music-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding:
+        0.55rem
+        calc(1.25rem + env(safe-area-inset-right, 0px))
+        calc(0.55rem + env(safe-area-inset-bottom, 0px))
+        calc(1.25rem + env(safe-area-inset-left, 0px));
+      background: var(--bg);
+      border-top: 1px solid rgba(16, 13, 13, 0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 11;
+      transform: translateY(100%);
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .music-bar.shown { transform: translateY(0); }
+
+    .mb-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
     }
 
-    /* ── Sound toggle ── */
-    .sound-btn {
-      position: fixed;
-      bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
-      right: calc(1rem + env(safe-area-inset-right, 0px));
-      z-index: 10;
+    .mb-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .mb-btn {
       background: none;
       border: none;
-      padding: 0.4rem;
-      margin: 0;
+      padding: 0.35rem;
       cursor: pointer;
       color: var(--dim);
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
-      /* Generous touch target */
-      min-width: 2.75rem;
-      min-height: 2.75rem;
       justify-content: center;
-      transition: color 0.2s ease, opacity 0.2s ease;
+      min-width: 2rem;
+      min-height: 2rem;
+      border-radius: 4px;
+      transition: color 0.15s ease;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-
-    .sound-btn svg {
-      width: 1.05rem;
-      height: 1.05rem;
+    .mb-btn:hover { color: var(--ink); }
+    .mb-btn:focus-visible { outline: 1px solid var(--red); outline-offset: 2px; }
+    .mb-btn.on  { color: var(--red); }
+    .mb-btn svg {
+      width: 0.85rem;
+      height: 0.85rem;
       stroke: currentColor;
       fill: none;
       stroke-width: 1.75;
       stroke-linecap: round;
       stroke-linejoin: round;
       pointer-events: none;
-      flex-shrink: 0;
-    }
-
-    /* Volume bars — 3 vertical bars like a signal indicator */
-    .vol-bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 2.5px;
-      height: 8px;
-      pointer-events: none;
-    }
-    .vol-bars span {
-      width: 3px;
-      border-radius: 1.5px;
-      background: currentColor;
-      transition: opacity 0.25s ease, background 0.25s ease;
-    }
-    .vol-bars span:nth-child(1) { height: 3px; }
-    .vol-bars span:nth-child(2) { height: 5.5px; }
-    .vol-bars span:nth-child(3) { height: 8px; }
-
-    /* Muted: all bars dimmed */
-    .sound-btn.is-muted .vol-bars span { opacity: 0.18; }
-
-    /* Low: only first bar lit */
-    .sound-btn.vol-low .vol-bars span:nth-child(1) { opacity: 1; }
-    .sound-btn.vol-low .vol-bars span:nth-child(2) { opacity: 0.18; }
-    .sound-btn.vol-low .vol-bars span:nth-child(3) { opacity: 0.18; }
-
-    /* High: all bars lit */
-    .sound-btn.vol-high .vol-bars span { opacity: 1; }
-
-    .sound-btn:hover { color: var(--ink); }
-    .sound-btn:focus-visible { outline: 1px solid var(--red); outline-offset: 4px; border-radius: 4px; }
-
-    /* Muted state */
-    .sound-btn.is-muted { color: var(--red); opacity: 0.6; }
-
-    /* Waiting for first interaction */
-    .sound-btn.needs-tap {
-      animation: soundPulse 2.2s ease-in-out infinite;
-    }
-    @keyframes soundPulse {
-      0%, 100% { opacity: 0.45; }
-      50%       { opacity: 0.95; }
-    }
-
-    /* ── Tooltip ── */
-    .sound-tip {
-      position: fixed;
-      bottom: calc(4.6rem + env(safe-area-inset-bottom, 0px));
-      right: calc(1rem + env(safe-area-inset-right, 0px));
-      font-size: 0.6rem;
-      font-weight: 400;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-      color: var(--dim);
-      white-space: nowrap;
-      z-index: 9;
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(3px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .sound-tip.shown {
-      opacity: 1;
-      transform: translateY(0);
     }
 
     main {
@@ -300,14 +288,18 @@
   <audio id="introAudio" src="music/opening.mp3"          preload="auto"></audio>
   <audio id="bgmAudio"   src="music/background_music.mp3" preload="auto" loop></audio>
 
-  <div class="sound-tip" id="soundTip" aria-hidden="true">tap to listen</div>
+  <!-- Shows only on mobile/browsers that block autoplay -->
+  <div class="intro-hint" id="introHint" aria-hidden="true">tap anywhere · sound incoming</div>
 
-  <button class="sound-btn needs-tap" id="soundBtn" aria-label="Music muted — tap to play">
-    <svg id="soundIcon" viewBox="0 0 24 24" aria-hidden="true"></svg>
-    <span class="vol-bars" aria-hidden="true">
-      <span></span><span></span><span></span>
-    </span>
-  </button>
+  <!-- Slides up after intro finishes -->
+  <div class="music-bar" id="musicBar" aria-hidden="true">
+    <span class="mb-label">♪ background music</span>
+    <div class="mb-controls">
+      <button class="mb-btn" id="mcPause" aria-label="Pause music"></button>
+      <button class="mb-btn" id="mcVol"   aria-label="Low volume"></button>
+      <button class="mb-btn" id="mcMute"  aria-label="Mute music"></button>
+    </div>
+  </div>
 
   <main>
     <h1 id="headline" aria-live="polite"></h1>
@@ -423,106 +415,101 @@
     tick();
     setInterval(tick, 1000);
 
-    /* ── Audio: intro plays once, then background loops ── */
-    var introEl = document.getElementById('introAudio');
-    var bgmEl   = document.getElementById('bgmAudio');
-    var btn     = document.getElementById('soundBtn');
-    var icon    = document.getElementById('soundIcon');
-    var tip     = document.getElementById('soundTip');
-    var tipTimer, tipDismissTimer;
+    /* ── Audio ──
+       Phase 1 — opening.mp3: plays once, no controls, untouchable.
+       Phase 2 — background_music.mp3: loops, music bar slides up with
+                 pause / volume-low / mute controls.
+    ── */
+    var introEl  = document.getElementById('introAudio');
+    var bgmEl    = document.getElementById('bgmAudio');
+    var hint     = document.getElementById('introHint');
+    var musicBar = document.getElementById('musicBar');
+    var mcPause  = document.getElementById('mcPause');
+    var mcVol    = document.getElementById('mcVol');
+    var mcMute   = document.getElementById('mcMute');
 
-    function showTip() {
-      clearTimeout(tipTimer);
-      tipTimer = setTimeout(function () { tip.classList.add('shown'); }, 600);
+    var ICO_PAUSE = '<svg viewBox="0 0 24 24"><line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>';
+    var ICO_PLAY  = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    var ICO_VOLLO = '<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+    var ICO_VOLHI = '<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+    var ICO_MUTE  = '<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+
+    var volLow = false;
+    var muted  = false;
+    var phase  = 'idle';
+
+    function bgmVol() { return muted ? 0 : (volLow ? 0.25 : 0.75); }
+
+    function refreshButtons() {
+      mcPause.innerHTML = bgmEl.paused ? ICO_PLAY  : ICO_PAUSE;
+      mcPause.setAttribute('aria-label', bgmEl.paused ? 'Play music' : 'Pause music');
+      mcPause.classList.toggle('on', bgmEl.paused);
+      mcVol.innerHTML = volLow ? ICO_VOLLO : ICO_VOLHI;
+      mcVol.setAttribute('aria-label', volLow ? 'Raise volume' : 'Lower volume');
+      mcVol.classList.toggle('on', volLow);
+      mcMute.innerHTML = ICO_MUTE;
+      mcMute.setAttribute('aria-label', muted ? 'Unmute' : 'Mute');
+      mcMute.classList.toggle('on', muted);
     }
-    function hideTip() {
-      clearTimeout(tipTimer);
-      clearTimeout(tipDismissTimer);
-      tip.classList.remove('shown');
-    }
 
-    var STATES = [
-      {
-        vol: 0,    label: 'Music muted — tap to play',
-        paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
-               '<line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
-      },
-      {
-        vol: 0.3,  label: 'Low volume — tap to raise',
-        paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
-               '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
-      },
-      {
-        vol: 0.8,  label: 'High volume — tap to lower',
-        paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
-               '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>' +
-               '<path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
-      }
-    ];
-
-    var phase    = 'idle'; /* 'idle' | 'intro' | 'loop' */
-    var stateIdx = 0;
-    var active   = null;   /* currently playing <audio> element */
-
-    function applyState(idx) {
-      var s = STATES[idx];
-      icon.innerHTML = s.paths;
-      btn.setAttribute('aria-label', s.label);
-      btn.classList.toggle('is-muted', idx === 0);
-      btn.classList.toggle('vol-low',  idx === 1);
-      btn.classList.toggle('vol-high', idx === 2);
-      stateIdx = idx;
-      if (active) {
-        active.volume = s.vol;
-        active.muted  = (idx === 0);
-      }
+    function showMusicBar() {
+      musicBar.removeAttribute('aria-hidden');
+      musicBar.classList.add('shown');
+      document.body.classList.add('bar-up');
+      refreshButtons();
     }
 
     function startBgm() {
-      active  = bgmEl;
-      bgmEl.volume = STATES[stateIdx].vol;
-      bgmEl.muted  = (stateIdx === 0);
+      phase = 'bgm';
+      bgmEl.volume = bgmVol();
+      bgmEl.muted  = muted;
       bgmEl.play().catch(function () {});
-      phase = 'loop';
-      /* Auto-unmute to low if the user had muted during the intro */
-      if (stateIdx === 0) applyState(1);
+      showMusicBar();
     }
 
-    /* When intro finishes, seamlessly start the background loop */
     introEl.addEventListener('ended', startBgm);
+
+    mcPause.addEventListener('click', function () {
+      if (bgmEl.paused) { bgmEl.play().catch(function () {}); }
+      else              { bgmEl.pause(); }
+      setTimeout(refreshButtons, 30);
+    });
+
+    mcVol.addEventListener('click', function () {
+      volLow = !volLow;
+      if (!muted) bgmEl.volume = bgmVol();
+      refreshButtons();
+    });
+
+    mcMute.addEventListener('click', function () {
+      muted = !muted;
+      bgmEl.muted  = muted;
+      bgmEl.volume = bgmVol();
+      refreshButtons();
+    });
 
     function startIntro() {
       if (phase !== 'idle') return;
-      phase   = 'intro';
-      active  = introEl;
-      introEl.volume = STATES[stateIdx > 0 ? stateIdx : 1].vol;
-      introEl.muted  = false;
-      introEl.play().catch(function () {});
-      hideTip();
-      btn.classList.remove('needs-tap');
-      applyState(stateIdx > 0 ? stateIdx : 1);
+      phase = 'intro';
+      hint.classList.remove('shown');
+      introEl.volume = 0.75;
+      introEl.play().catch(function () { phase = 'idle'; });
     }
 
-    btn.addEventListener('click', function () {
-      hideTip();
-      if (phase === 'idle') {
-        startIntro();
-        return;
-      }
-      applyState((stateIdx + 1) % STATES.length);
-    });
-
-    /* Show hint; try autoplay on desktop (will silently fail on mobile) */
-    applyState(0);
-    showTip();
-    tipDismissTimer = setTimeout(hideTip, 10000);
-
+    /* Autoplay attempt — succeeds on desktop, silently fails on mobile */
     introEl.play().then(function () {
-      phase  = 'intro';
-      active = introEl;
-      btn.classList.remove('needs-tap');
-      applyState(1);
-    }).catch(function () { /* mobile blocks autoplay — wait for tap */ });
+      phase = 'intro';
+    }).catch(function () {
+      hint.classList.add('shown');
+      hint.removeAttribute('aria-hidden');
+      var unlock = function () {
+        document.removeEventListener('click',      unlock);
+        document.removeEventListener('touchstart', unlock);
+        startIntro();
+      };
+      document.addEventListener('click',      unlock, { once: true });
+      document.addEventListener('touchstart', unlock, { once: true });
+    });
   })();
   </script>
 </body>
