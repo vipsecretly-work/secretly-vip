@@ -94,6 +94,7 @@
     .clock {
       position: fixed;
       bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+      top: auto;
       left: calc(1.25rem + env(safe-area-inset-left, 0px));
       right: calc(1.25rem + env(safe-area-inset-right, 0px));
       font-size: 0.65rem;
@@ -101,21 +102,27 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--dim);
-      z-index: 10;
+      z-index: 12;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.25s ease;
     }
-    /* hide clock when music bar is visible */
-    body.bar-up .clock { opacity: 0; pointer-events: none; }
+    /* When music bar is up, clock moves to top-right (JS fades it out/in) */
+    .clock.at-top {
+      bottom: auto;
+      top: calc(1.25rem + env(safe-area-inset-top, 0px));
+      left: auto;
+      right: calc(1.25rem + env(safe-area-inset-right, 0px));
+      text-align: right;
+    }
 
     /* ── Autoplay hint (mobile) ── */
     .intro-hint {
       position: fixed;
-      bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%);
       font-size: 0.6rem;
@@ -457,6 +464,13 @@
       musicBar.classList.add('shown');
       document.body.classList.add('bar-up');
       refreshButtons();
+      /* Fade clock out → reposition to top-right → fade back in */
+      var cl = document.getElementById('clock');
+      cl.style.opacity = '0';
+      setTimeout(function () {
+        cl.classList.add('at-top');
+        cl.style.opacity = '';
+      }, 260);
     }
 
     function startBgm() {
