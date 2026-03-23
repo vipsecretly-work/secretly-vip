@@ -242,7 +242,9 @@
   <span class="brand">secretly.vip</span>
   <span class="clock" id="clock" aria-live="polite" aria-label="Your local time"></span>
 
-  <audio id="bgm" src="background_music.mp3" loop preload="auto"></audio>
+  <audio id="bgm"      src="background_music.mp3" loop preload="auto"></audio>
+  <audio id="sfxOn"   src="modal_open.mp3"       preload="auto"></audio>
+  <audio id="sfxOff"  src="modal_close.mp3"      preload="auto"></audio>
 
   <button class="sound-btn needs-tap" id="soundBtn" aria-label="Toggle music" title="Toggle music">
     <!-- Icon swapped by JS: sound-on or sound-off -->
@@ -372,23 +374,33 @@
     tick();
     setInterval(tick, 1000);
 
-    /* ── Background music ── */
-    var bgm     = document.getElementById('bgm');
+    /* ── Background music + tap sounds ── */
+    var bgm    = document.getElementById('bgm');
+    var sfxOn  = document.getElementById('sfxOn');
+    var sfxOff = document.getElementById('sfxOff');
     var btn     = document.getElementById('soundBtn');
     var iconOn  = document.getElementById('iconOn');
     var iconOff = document.getElementById('iconOff');
     var muted   = false;
     var started = false;
 
-    bgm.volume = 0.25; /* low background level */
+    bgm.volume    = 0.25;
+    sfxOn.volume  = 0.6;
+    sfxOff.volume = 0.6;
 
-    function setMuted(m) {
-      muted      = m;
-      bgm.muted  = m;
+    function playSfx(el) {
+      el.currentTime = 0;
+      el.play().catch(function () {});
+    }
+
+    function setMuted(m, playSound) {
+      muted     = m;
+      bgm.muted = m;
       iconOn.style.display  = m ? 'none' : '';
       iconOff.style.display = m ? ''     : 'none';
       btn.classList.toggle('is-muted', m);
       btn.setAttribute('aria-label', m ? 'Unmute music' : 'Mute music');
+      if (playSound) playSfx(m ? sfxOff : sfxOn);
     }
 
     function startMusic() {
@@ -396,9 +408,8 @@
       started = true;
       btn.classList.remove('needs-tap');
       bgm.play().then(function () {
-        setMuted(false);
+        setMuted(false, true); /* play "on" sound */
       }).catch(function () {
-        /* Play failed even after interaction — keep button visible */
         started = false;
       });
     }
@@ -407,18 +418,17 @@
       if (!started) {
         startMusic();
       } else {
-        setMuted(!muted);
+        setMuted(!muted, true);
       }
     });
 
-    /* Try autoplay silently — works on desktop if user has interacted before */
+    /* Try autoplay silently */
     bgm.play().then(function () {
       started = true;
       btn.classList.remove('needs-tap');
-      setMuted(false);
+      setMuted(false, false); /* no sfx on silent autoplay */
     }).catch(function () {
-      /* Autoplay blocked — button stays in needs-tap state, user taps to start */
-      setMuted(true);
+      setMuted(true, false);
     });
   })();
   </script>
