@@ -6,18 +6,14 @@
   <title>secretly.vip — coming soon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=VT323&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --void: #040308;
-      --panel: #0c0a14;
-      --pink: #ff2a6d;
-      --pink-deep: #b9135a;
-      --red: #ff3b3b;
-      --white: #f4f0ff;
-      --cyan: #05d9e8;
-      --cyan-dim: rgba(5, 217, 232, 0.35);
-      --shadow-deep: #1a0520;
+      --bg: #faf9f7;
+      --text: #141212;
+      --muted: rgba(20, 18, 18, 0.5);
+      --red: #c41e1e;
+      --red-hover: #a01818;
     }
 
     * {
@@ -26,339 +22,142 @@
       padding: 0;
     }
 
-    html {
-      height: 100%;
+    html, body {
+      min-height: 100%;
     }
 
     body {
-      min-height: 100%;
-      font-family: "VT323", ui-monospace, monospace;
-      background: var(--void);
-      color: var(--white);
-      overflow-x: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(1rem, 4vw, 2.5rem);
-    }
-
-    /* Star speckle */
-    .stars {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.45), transparent),
-        radial-gradient(1px 1px at 70% 65%, rgba(255, 255, 255, 0.35), transparent),
-        radial-gradient(1px 1px at 35% 80%, rgba(255, 255, 255, 0.25), transparent),
-        radial-gradient(1.5px 1.5px at 88% 12%, rgba(5, 217, 232, 0.5), transparent),
-        radial-gradient(1px 1px at 50% 50%, rgba(255, 42, 109, 0.2), transparent);
-      background-size: 100% 100%;
-      opacity: 0.85;
-    }
-
-    /* Perspective floor grid */
-    .floor-wrap {
-      position: fixed;
-      bottom: -35%;
-      left: -50%;
-      width: 200%;
-      height: 70%;
-      perspective: 420px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .floor {
-      width: 100%;
-      height: 100%;
-      transform-origin: 50% 0;
-      transform: rotateX(72deg);
-      background:
-        linear-gradient(
-          to bottom,
-          transparent 0%,
-          rgba(5, 217, 232, 0.06) 40%,
-          rgba(255, 42, 109, 0.12) 100%
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent 0,
-          transparent 47px,
-          rgba(5, 217, 232, 0.22) 47px,
-          rgba(5, 217, 232, 0.22) 48px
-        ),
-        repeating-linear-gradient(
-          0deg,
-          transparent 0,
-          transparent 47px,
-          rgba(255, 42, 109, 0.12) 47px,
-          rgba(255, 42, 109, 0.12) 48px
-        );
-      mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-      .floor {
-        animation: floor-drift 14s linear infinite;
-      }
-    }
-
-    @keyframes floor-drift {
-      from { background-position: 0 0, 0 0, 0 0; }
-      to { background-position: 0 0, 48px 0, 0 48px; }
-    }
-
-    /* CRT scanlines */
-    .scanlines {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0) 0px,
-        rgba(0, 0, 0, 0) 2px,
-        rgba(0, 0, 0, 0.13) 2px,
-        rgba(0, 0, 0, 0.13) 3px
-      );
-      opacity: 0.35;
-      mix-blend-mode: multiply;
-    }
-
-    .vignette {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.75) 100%);
-    }
-
-    main {
-      position: relative;
-      z-index: 3;
-      width: min(100%, 34rem);
-    }
-
-    .retro-panel {
-      position: relative;
-      padding: clamp(1.75rem, 5vw, 2.5rem) clamp(1.25rem, 4vw, 2rem);
-      background:
-        linear-gradient(145deg, rgba(255, 42, 109, 0.08) 0%, transparent 45%),
-        linear-gradient(210deg, rgba(5, 217, 232, 0.06) 0%, transparent 40%),
-        var(--panel);
-      border: 3px solid var(--white);
-      box-shadow:
-        0 0 0 2px var(--pink),
-        0 0 0 6px var(--void),
-        0 0 0 8px var(--cyan-dim),
-        12px 12px 0 var(--shadow-deep),
-        0 0 40px rgba(255, 42, 109, 0.25),
-        inset 0 0 60px rgba(5, 217, 232, 0.04);
-      transform: rotate(-0.5deg);
-    }
-
-    .retro-panel::before,
-    .retro-panel::after {
-      content: "";
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      border: 3px solid var(--cyan);
-    }
-
-    .retro-panel::before {
-      top: -6px;
-      left: -6px;
-      border-right: none;
-      border-bottom: none;
-    }
-
-    .retro-panel::after {
-      bottom: -6px;
-      right: -6px;
-      border-left: none;
-      border-top: none;
-    }
-
-    .brand {
-      font-family: "VT323", monospace;
-      font-size: clamp(1.35rem, 3.5vw, 1.65rem);
-      letter-spacing: 0.35em;
-      text-align: center;
-      color: var(--cyan);
-      text-shadow: 0 0 12px var(--cyan-dim);
-      margin-bottom: 1.25rem;
-    }
-
-    .title-3d {
-      font-family: "Russo One", sans-serif;
+      font-family: "Outfit", system-ui, sans-serif;
       font-weight: 400;
-      font-size: clamp(1.65rem, 6.5vw, 2.35rem);
-      line-height: 1.15;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--white);
-      /* Extruded 3D stack */
-      text-shadow:
-        1px 1px 0 var(--pink),
-        2px 2px 0 var(--pink-deep),
-        3px 3px 0 #8b0f4a,
-        4px 4px 0 #5c0a35,
-        5px 5px 0 #3d0728,
-        6px 6px 0 var(--shadow-deep),
-        7px 7px 14px rgba(0, 0, 0, 0.85);
-      filter: drop-shadow(0 0 20px rgba(255, 42, 109, 0.35));
-    }
-
-    .title-3d .line {
-      display: block;
-    }
-
-    .title-3d .line + .line {
-      margin-top: 0.15em;
-      color: #fff5fb;
-      text-shadow:
-        1px 1px 0 var(--red),
-        2px 2px 0 #c41e3a,
-        3px 3px 0 #8b1530,
-        4px 4px 0 #5c1025,
-        5px 5px 0 var(--shadow-deep),
-        6px 6px 12px rgba(0, 0, 0, 0.8);
-    }
-
-    .contact {
-      margin-top: 2.25rem;
-      padding-top: 1.75rem;
-      border-top: 2px dashed rgba(5, 217, 232, 0.4);
-    }
-
-    .contact a {
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1rem;
-      text-decoration: none;
-      color: var(--white);
-      font-size: clamp(1.2rem, 3.2vw, 1.45rem);
-      letter-spacing: 0.06em;
-      transition: transform 0.15s ease, filter 0.15s ease;
-    }
-
-    .contact a:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 6px;
-    }
-
-    .contact a:hover {
-      transform: translateY(-3px);
-      filter: brightness(1.08);
-    }
-
-    .mail-3d {
-      position: relative;
-      width: 4.25rem;
-      height: 4.25rem;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      background: linear-gradient(145deg, #ff4d7d 0%, var(--pink-deep) 50%, #6b0a3a 100%);
-      border: 3px solid var(--white);
-      box-shadow:
-        4px 4px 0 #2a0618,
-        6px 6px 0 #12030c,
-        0 0 24px rgba(255, 42, 109, 0.45);
-      transform: rotate(-3deg);
+      min-height: 100vh;
+      padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 5vw, 2.5rem);
+      -webkit-font-smoothing: antialiased;
     }
 
-    .mail-3d::after {
-      content: "";
-      position: absolute;
-      inset: 6px;
-      border: 2px solid rgba(255, 255, 255, 0.35);
-      pointer-events: none;
+    main {
+      width: 100%;
+      max-width: 26rem;
+      text-align: center;
     }
 
-    .contact a:hover .mail-3d {
-      transform: rotate(0deg) translateY(-2px);
-      box-shadow:
-        5px 5px 0 #2a0618,
-        8px 8px 0 #12030c,
-        0 0 32px rgba(5, 217, 232, 0.35);
+    .mark {
+      font-family: "Cinzel", serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 2rem;
     }
 
-    .mail-3d svg {
-      width: 1.75rem;
-      height: 1.75rem;
-      stroke: var(--white);
+    h1 {
+      font-family: "Cinzel", serif;
+      font-weight: 400;
+      font-size: clamp(1.5rem, 4.2vw, 1.875rem);
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .rule {
+      width: 2.5rem;
+      height: 1px;
+      background: var(--red);
+      margin: 2rem auto;
+      opacity: 0.85;
+    }
+
+    .contact {
+      margin-top: 0;
+    }
+
+    .contact a {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9375rem;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      transition: color 0.2s ease;
+    }
+
+    .contact a:hover,
+    .contact a:focus-visible {
+      color: var(--text);
+      outline: none;
+    }
+
+    .contact a:focus-visible .email {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .mail-icon {
+      color: var(--red);
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .contact a:hover .mail-icon {
+      color: var(--red-hover);
+      transform: translateY(-1px);
+    }
+
+    .mail-icon svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      stroke: currentColor;
       fill: none;
-      stroke-width: 2.2;
+      stroke-width: 1.75;
       stroke-linecap: round;
       stroke-linejoin: round;
-      filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4));
-    }
-
-    .reach {
-      text-align: center;
-      line-height: 1.35;
-    }
-
-    .reach .label {
-      display: block;
-      color: var(--cyan);
-      text-shadow: 0 0 8px var(--cyan-dim);
-      margin-bottom: 0.25rem;
-      font-size: 0.95em;
     }
 
     .email {
-      color: var(--white);
-      word-break: break-all;
-      text-shadow: 2px 2px 0 var(--pink-deep);
+      font-family: "Cinzel", serif;
+      font-size: 0.95rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--red);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .floor {
-        animation: none;
-      }
-      .contact a:hover,
-      .contact a:hover .mail-3d {
-        transform: none;
-      }
+    .contact a:hover .email {
+      color: var(--red-hover);
+    }
+
+    .label {
+      font-size: 0.8125rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
     }
   </style>
 </head>
 <body>
-  <div class="stars" aria-hidden="true"></div>
-  <div class="floor-wrap" aria-hidden="true"><div class="floor"></div></div>
-  <div class="vignette" aria-hidden="true"></div>
-  <div class="scanlines" aria-hidden="true"></div>
-
   <main>
-    <div class="retro-panel">
-      <p class="brand">SECRETLY.VIP</p>
-      <h1 class="title-3d">
-        <span class="line">This site's</span>
-        <span class="line">gonna go live soon</span>
-      </h1>
+    <p class="mark">secretly.vip</p>
+    <h1>This site's gonna go live soon</h1>
+    <div class="rule" aria-hidden="true"></div>
 
-      <section class="contact" aria-label="Contact">
-        <a href="mailto:support@secretly.vip">
-          <span class="mail-3d">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <path d="m22 6-10 7L2 6" />
-            </svg>
-          </span>
-          <span class="reach">
-            <span class="label">&gt; REACH OUT</span>
-            <span class="email">support@secretly.vip</span>
-          </span>
-        </a>
-      </section>
-    </div>
+    <section class="contact" aria-label="Contact">
+      <a href="mailto:support@secretly.vip">
+        <span class="mail-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <path d="m22 6-10 7L2 6" />
+          </svg>
+        </span>
+        <span class="label">Reach out</span>
+        <span class="email">support@secretly.vip</span>
+      </a>
+    </section>
   </main>
 </body>
 </html>
