@@ -139,6 +139,7 @@
       opacity: 0.85;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
       min-width: 0;
     }
     /* When music bar is up: moves to top-right */
@@ -345,7 +346,6 @@
 
       /* At-top: tighter cap so it never overlaps the brand */
       .clock.at-top { max-width: 52vw; }
-      .clock.at-top .user-region { display: none; }
 
       /* Intro hint: allow wrap on very narrow screens */
       .intro-hint {
