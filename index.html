@@ -191,58 +191,27 @@
       50%       { opacity: 0.95; }
     }
 
-    /* ── Tooltip bubble ── */
+    /* ── Tooltip ── */
     .sound-tip {
       position: fixed;
-      bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
-      right: calc(0.6rem + env(safe-area-inset-right, 0px));
-      max-width: 12.5rem;
-      background: #fff5f5;
-      border: 1px solid rgba(229, 34, 34, 0.22);
-      border-radius: 0.875rem;
-      padding: 0.6rem 0.85rem 0.6rem 0.75rem;
-      font-size: 0.7rem;
+      bottom: calc(4.6rem + env(safe-area-inset-bottom, 0px));
+      right: calc(1rem + env(safe-area-inset-right, 0px));
+      font-size: 0.6rem;
       font-weight: 400;
-      line-height: 1.5;
-      letter-spacing: 0.025em;
-      color: #c41e1e;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--dim);
+      white-space: nowrap;
       z-index: 9;
       pointer-events: none;
       opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      box-shadow: 0 4px 16px rgba(229, 34, 34, 0.08);
-    }
-
-    /* Arrow pointing down-right toward the sound button */
-    .sound-tip::before,
-    .sound-tip::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      right: 1.3rem;
-      width: 0;
-      height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-    }
-    .sound-tip::before {
-      border-top: 8px solid rgba(229, 34, 34, 0.22);
-      bottom: -9px;
-    }
-    .sound-tip::after {
-      border-top: 8px solid #fff5f5;
+      transform: translateY(3px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
 
     .sound-tip.shown {
       opacity: 1;
       transform: translateY(0);
-      animation: tipFloat 3s ease-in-out 0.5s infinite;
-    }
-
-    @keyframes tipFloat {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-4px); }
     }
 
     main {
@@ -330,7 +299,7 @@
 
   <!-- Music decoded via Web Audio API for truly gapless looping -->
 
-  <div class="sound-tip" id="soundTip" aria-hidden="true">♪ tap here to listen<br>something soothing</div>
+  <div class="sound-tip" id="soundTip" aria-hidden="true">tap to listen</div>
 
   <button class="sound-btn needs-tap" id="soundBtn" aria-label="Music muted — tap to play">
     <svg id="soundIcon" viewBox="0 0 24 24" aria-hidden="true"></svg>
@@ -462,11 +431,15 @@
     var tip  = document.getElementById('soundTip');
     var tipTimer;
 
+    var tipDismissTimer;
+
     function showTip() {
-      tipTimer = setTimeout(function () { tip.classList.add('shown'); }, 800);
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(function () { tip.classList.add('shown'); }, 600);
     }
     function hideTip() {
       clearTimeout(tipTimer);
+      clearTimeout(tipDismissTimer);
       tip.classList.remove('shown');
     }
 
@@ -522,6 +495,7 @@
       source.connect(gainNode);
       source.start(0);
       playing = true;
+      hideTip();                      /* dismiss hint once music is actually playing */
     }
 
     function initCtx() {
@@ -565,26 +539,15 @@
       applyState(next);
     });
 
-    /* Init audio context + try silent autoplay */
+    /* Always show the hint on load; hide it when music starts or user taps */
+    applyState(0);
+    showTip();
+    tipDismissTimer = setTimeout(hideTip, 10000);
+
+    /* Init context + try silent autoplay */
     initCtx();
     if (ctx) {
-      ctx.resume().then(function () {
-        /* On desktop the context is already running after resume */
-        if (ctx.state === 'running' && audioBuf && !playing) {
-          startSource();
-          applyState(1);
-          btn.classList.remove('needs-tap');
-        } else if (ctx.state === 'suspended') {
-          /* Mobile: blocked — show tooltip */
-          applyState(0);
-          showTip();
-          setTimeout(hideTip, 9000);
-        }
-      });
-    } else {
-      applyState(0);
-      showTip();
-      setTimeout(hideTip, 9000);
+      ctx.resume().catch(function () {});
     }
   })();
   </script>
