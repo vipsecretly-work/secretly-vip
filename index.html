@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>secretly.vip — coming soon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --white: #fffafc;
+      --hot-pink: #ff1a8c;
+      --red: #e3123d;
+      --ink: #1a0510;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem 1.5rem 3rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 26, 140, 0.12), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(227, 18, 61, 0.08), transparent 50%);
+    }
+
+    main {
+      position: relative;
+      text-align: center;
+      max-width: 28rem;
+    }
+
+    h1 {
+      font-size: clamp(1.75rem, 5vw, 2.25rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      background: linear-gradient(120deg, var(--red) 0%, var(--hot-pink) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .contact {
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 26, 140, 0.2);
+    }
+
+    .contact a {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: var(--red);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .contact a:hover {
+      color: var(--hot-pink);
+    }
+
+    .contact a:hover .mail-wrap {
+      transform: translateY(-2px);
+    }
+
+    .mail-wrap {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--hot-pink), var(--red));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(227, 18, 61, 0.25);
+      transition: transform 0.2s ease;
+    }
+
+    .mail-wrap svg {
+      width: 1.35rem;
+      height: 1.35rem;
+      stroke: var(--white);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .email {
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+  <main>
+    <h1>This site’s gonna go live soon</h1>
+
+    <section class="contact" aria-label="Contact">
+      <a href="mailto:support@secretly.vip">
+        <span class="mail-wrap">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <path d="m22 6-10 7L2 6" />
+          </svg>
+        </span>
+        <span>Reach out to <span class="email">support@secretly.vip</span></span>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
