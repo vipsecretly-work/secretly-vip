@@ -109,6 +109,8 @@
       z-index: 12;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+      overflow: hidden;
+      max-width: calc(100vw - 2.75rem);
       line-height: 1;
       transition: opacity 0.25s ease;
     }
@@ -121,6 +123,9 @@
     .user-region {
       color: var(--red-light);
       opacity: 0.85;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
     /* When music bar is up: moves to top-right */
     .clock.at-top {
@@ -129,6 +134,7 @@
       left: auto;
       right: calc(1.25rem + env(safe-area-inset-right, 0px));
       flex-direction: row-reverse;
+      max-width: calc(60vw);
     }
 
     /* ── Autoplay hint (mobile) ── */
@@ -194,14 +200,14 @@
     .mb-btn {
       background: none;
       border: none;
-      padding: 0.35rem;
+      padding: 0.4rem;
       cursor: pointer;
       color: var(--red-light);
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 2rem;
-      min-height: 2rem;
+      min-width: 2.75rem;   /* 44px — Apple/Google minimum tap target */
+      min-height: 2.75rem;
       border-radius: 4px;
       transition: color 0.15s ease;
       -webkit-tap-highlight-color: transparent;
@@ -295,8 +301,58 @@
     .contact a:hover  { color: var(--red); border-color: var(--red); }
     .contact a:focus-visible { outline: 1px solid var(--red); outline-offset: 3px; }
 
+    /* ── Music bar visible: push body up so content isn't hidden behind it ── */
+    body.bar-up {
+      padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      body {
+        padding-top:   calc(3rem + env(safe-area-inset-top,    0px));
+        padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+        padding-left:  calc(1.1rem + env(safe-area-inset-left,  0px));
+        padding-right: calc(1.1rem + env(safe-area-inset-right, 0px));
+      }
+      body.bar-up {
+        padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+      }
+
+      .brand { font-size: 0.72rem; }
+
+      /* Hide region on narrow — date alone fills available space */
+      .user-region { display: none; }
+
+      /* At-top: region already hidden; keep brand/clock from colliding */
+      .clock.at-top { max-width: 52vw; }
+
+      /* Intro hint: allow wrap on very narrow screens */
+      .intro-hint {
+        white-space: normal;
+        text-align: center;
+        max-width: calc(100vw - 2.5rem);
+        left: 1.25rem;
+        transform: none;
+      }
+
+      /* Music bar tighter on mobile */
+      .music-bar { gap: 0.5rem; }
+      .mb-label  { font-size: 0.68rem; }
+
+      h1 { font-size: clamp(1.15rem, 5.5vw, 1.45rem); }
+    }
+
     @media (max-width: 360px) {
-      h1 { font-size: 1.2rem; }
+      h1 { font-size: 1.1rem; }
+      .clock { font-size: 0.68rem; }
+    }
+
+    /* ── Reduced motion: respect user OS preference ── */
+    @media (prefers-reduced-motion: reduce) {
+      h1,
+      .music-bar,
+      .intro-hint,
+      .clock          { transition: none !important; }
     }
   </style>
 </head>
@@ -444,17 +500,34 @@
     function pad(n) { return String(n).padStart(2, '0'); }
 
     function tick() {
-      var now    = new Date();
-      var narrow = window.innerWidth < 480;
-      var day    = narrow ? DAYS_S[now.getDay()] : DAYS_L[now.getDay()];
-      clockEl.textContent =
-        day + ' · ' +
-        pad(now.getDate()) + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear() +
-        ' · ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      var now = new Date();
+      var w   = window.innerWidth;
+      var h   = pad(now.getHours()) + ':' + pad(now.getMinutes());
+      var hs  = h + ':' + pad(now.getSeconds());
+
+      if (w < 360) {
+        /* tiny: just HH:MM */
+        clockEl.textContent = h;
+      } else if (w < 480) {
+        /* narrow: Tue · HH:MM:SS */
+        clockEl.textContent = DAYS_S[now.getDay()] + ' · ' + hs;
+      } else {
+        /* full: Tuesday · 23 Mar 2026 · HH:MM:SS */
+        clockEl.textContent =
+          DAYS_L[now.getDay()] + ' · ' +
+          pad(now.getDate()) + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear() +
+          ' · ' + hs;
+      }
     }
 
     tick();
     setInterval(tick, 1000);
+
+    /* Pause globe animation for users who prefer reduced motion */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var globe = document.querySelector('svg.globe-icon');
+      if (globe && globe.pauseAnimations) globe.pauseAnimations();
+    }
 
     /* ── IP geolocation (no permission needed) ── */
     var CONTINENTS = {
