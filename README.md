@@ -5,10 +5,14 @@ Static “coming soon” landing page for [secretly.vip](https://secretly.vip).
 ## What’s here
 
 - `index.html` — single-file site (inline CSS, Google Fonts, mail link to `support@secretly.vip`).
+- `.gitignore` — ignores OS junk, editors, `node_modules`, env files, etc.
+- `.gitattributes` — consistent line endings (`LF`) for text files.
+- `.editorconfig` — basic spacing/encoding defaults for editors that support it.
+- `LICENSE` — MIT.
 
 ## GitHub
 
-1. Create a new empty repository on GitHub (no README/license if you’re pushing this repo as-is).
+1. Create a new repository on GitHub (empty is fine; this repo already includes `README.md` and `LICENSE`).
 2. From this folder:
 
    ```bash
