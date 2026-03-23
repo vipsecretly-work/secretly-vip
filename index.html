@@ -120,6 +120,20 @@
       flex-shrink: 0;
       overflow: visible;
     }
+    /* CSS-based globe rotation — works on all mobile browsers */
+    .lon1, .lon2 {
+      transform-box: fill-box;
+      transform-origin: 50% 50%;
+    }
+    .lon1 { animation: lonSpin 6s linear infinite; }
+    .lon2 { animation: lonSpin 6s linear infinite -1.5s; }
+    @keyframes lonSpin {
+      0%   { transform: scaleX(1);  }
+      25%  { transform: scaleX(0);  }
+      50%  { transform: scaleX(-1); }
+      75%  { transform: scaleX(0);  }
+      100% { transform: scaleX(1);  }
+    }
     .user-region {
       color: var(--red-light);
       opacity: 0.85;
@@ -320,11 +334,18 @@
 
       .brand { font-size: 0.72rem; }
 
-      /* Hide region on narrow — date alone fills available space */
-      .user-region { display: none; }
+      /* Clip region if it overflows rather than hiding it entirely */
+      .user-region {
+        display: inline;
+        max-width: 40vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-      /* At-top: region already hidden; keep brand/clock from colliding */
+      /* At-top: tighter cap so it never overlaps the brand */
       .clock.at-top { max-width: 52vw; }
+      .clock.at-top .user-region { display: none; }
 
       /* Intro hint: allow wrap on very narrow screens */
       .intro-hint {
@@ -353,6 +374,7 @@
       .music-bar,
       .intro-hint,
       .clock          { transition: none !important; }
+      .lon1, .lon2    { animation: none; }
     }
   </style>
 </head>
@@ -368,14 +390,8 @@
       <line x1="2.5" y1="12" x2="21.5" y2="12"   stroke-width="0.7" opacity="0.5"/>
       <ellipse cx="12" cy="15.5" rx="9" ry="2.6" stroke-width="0.7" opacity="0.5"/>
       <!-- Longitude meridians — rx animates to simulate Y-axis rotation -->
-      <ellipse cx="12" cy="12" ry="9.5" stroke-width="0.9">
-        <animate attributeName="rx" values="9.5;0;9.5;0;9.5"
-                 dur="6s" repeatCount="indefinite" calcMode="linear"/>
-      </ellipse>
-      <ellipse cx="12" cy="12" ry="9.5" stroke-width="0.7" opacity="0.38">
-        <animate attributeName="rx" values="0;9.5;0;9.5;0"
-                 dur="6s" repeatCount="indefinite" calcMode="linear"/>
-      </ellipse>
+      <ellipse class="lon1" cx="12" cy="12" rx="9.5" ry="9.5" stroke-width="0.9"/>
+      <ellipse class="lon2" cx="12" cy="12" rx="9.5" ry="9.5" stroke-width="0.7" opacity="0.38"/>
     </svg>
     <span id="clock"></span>
     <span class="user-region" id="userRegion"></span>
@@ -523,11 +539,6 @@
     tick();
     setInterval(tick, 1000);
 
-    /* Pause globe animation for users who prefer reduced motion */
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      var globe = document.querySelector('svg.globe-icon');
-      if (globe && globe.pauseAnimations) globe.pauseAnimations();
-    }
 
     /* ── IP geolocation (no permission needed) ── */
     var CONTINENTS = {
