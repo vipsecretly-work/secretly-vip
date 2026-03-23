@@ -3,13 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Lock page to same-origin assets only (no external scripts / CDNs). Inline styles allowed. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>secretly.vip — coming soon</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='r' x1='0' y1='0' x2='32' y2='32'%3E%3Cstop offset='0%25' stop-color='%23e53935'/%3E%3Cstop offset='100%25' stop-color='%23b71c1c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23r)'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='19' font-weight='700' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23e52222'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='19' font-weight='700' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E" />
   <style>
-    /* Fonts ship with the site — no third-party font CDNs */
     @font-face {
       font-family: "Cinzel";
       src: url("fonts/cinzel-latin.woff2") format("woff2");
@@ -26,321 +24,162 @@
     }
 
     :root {
-      --bg: #f5f2ed;
-      --bg-deep: #ebe6df;
-      --text: #141212;
-      --muted: rgba(20, 18, 18, 0.52);
-      --accent: #e91e63;
-      --accent-soft: rgba(233, 30, 99, 0.12);
-      --accent-hover: #c2185b;
-      --card: rgba(255, 255, 255, 0.72);
-      --shadow-1: 0 1px 2px rgba(20, 10, 30, 0.04);
-      --shadow-2: 0 8px 24px rgba(233, 30, 99, 0.08), 0 2px 8px rgba(20, 10, 30, 0.06);
-      --shadow-3: 0 24px 48px -12px rgba(233, 30, 99, 0.18), 0 12px 32px -8px rgba(20, 10, 40, 0.12);
+      --bg: #0d0a0a;
+      --ink: #ece8e1;
+      --dim: rgba(236, 232, 225, 0.42);
+      --red: #e52222;
+      --red-dim: rgba(229, 34, 34, 0.55);
     }
 
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html, body {
-      min-height: 100%;
-    }
+    html { height: 100%; }
 
     body {
-      font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Outfit", system-ui, -apple-system, sans-serif;
       font-weight: 400;
-      color: var(--text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 5vw, 2.5rem);
+      display: grid;
+      place-items: center;
+      padding: 5rem 2rem 4rem;
       -webkit-font-smoothing: antialiased;
-      position: relative;
-      overflow-x: hidden;
-      background:
-        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(233, 30, 99, 0.07), transparent 50%),
-        radial-gradient(ellipse 80% 60% at 100% 100%, rgba(194, 24, 91, 0.06), transparent 45%),
-        linear-gradient(165deg, var(--bg) 0%, var(--bg-deep) 100%);
     }
 
-    /* Twinkling star layers (pure CSS, no images) */
-    .starfield {
+    /* Film grain — a single subtle texture that makes the dark feel analog */
+    body::after {
+      content: "";
       position: fixed;
       inset: 0;
+      z-index: 100;
       pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
+      opacity: 0.055;
+      background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
     }
 
-    .starfield span {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #e53935;
-      box-shadow:
-        0 0 10px rgba(229, 57, 53, 0.95),
-        0 0 18px rgba(198, 40, 40, 0.45);
-      opacity: 0;
-      animation: starFade 4.5s ease-in-out infinite;
+    /* Brand mark — pinned, small, unobtrusive */
+    .brand {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.75rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--red);
+      z-index: 10;
     }
 
-    .starfield span:nth-child(odd) {
-      width: 8px;
-      height: 8px;
-      background: #d32f2f;
-      box-shadow:
-        0 0 12px rgba(211, 47, 47, 0.95),
-        0 0 22px rgba(183, 28, 28, 0.5);
-      animation-duration: 3.6s;
-    }
-
-    .starfield span:nth-child(3n) {
-      animation-delay: -0.9s;
-      animation-duration: 5.2s;
-    }
-
-    .starfield span:nth-child(5n) {
-      animation-delay: -2.1s;
-    }
-
-    .starfield span:nth-child(7n) {
-      animation-delay: -3.4s;
-    }
-
-    .starfield span:nth-child(11n) {
-      animation-duration: 3.1s;
-    }
-
-    @keyframes starFade {
-      0% {
-        opacity: 0;
-        transform: scale(0.6);
-      }
-      35% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      70% {
-        opacity: 0.25;
-        transform: scale(0.85);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.6);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .starfield span {
-        animation: none;
-        opacity: 0.55;
-      }
-      .glow-card {
-        transition: none;
-      }
-      .glow-card:hover {
-        transform: none;
-      }
-      .contact a:hover .mail-icon,
-      .contact a:hover {
-        transform: none;
-      }
+    /* Year — pinned bottom right, quiet */
+    .year {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.75rem;
+      font-size: 0.7rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      z-index: 10;
     }
 
     main {
-      position: relative;
-      z-index: 1;
       width: 100%;
-      max-width: 28rem;
-      perspective: 1400px;
-    }
-
-    .glow-card {
-      text-align: center;
-      padding: clamp(2rem, 5vw, 2.75rem) clamp(1.5rem, 4vw, 2rem);
-      background: var(--card);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.85);
-      border-radius: 1.25rem;
-      box-shadow:
-        inset 0 0 0 1px rgba(233, 30, 99, 0.08),
-        var(--shadow-1),
-        var(--shadow-2);
-      transform-style: preserve-3d;
-      transition:
-        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-      will-change: transform;
-    }
-
-    .glow-card:hover {
-      transform: translateY(-8px) rotateX(4deg) rotateY(-3deg) translateZ(12px);
-      box-shadow: var(--shadow-1), var(--shadow-3);
-    }
-
-    .mark {
-      font-family: "Cinzel", "Times New Roman", Times, serif;
-      font-size: clamp(0.95rem, 2.8vw, 1.2rem);
-      font-weight: 600;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 2rem;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+      max-width: 32rem;
     }
 
     h1 {
       font-family: "Cinzel", "Times New Roman", Times, serif;
       font-weight: 400;
-      font-size: clamp(1.5rem, 4.2vw, 1.875rem);
-      line-height: 1.35;
-      letter-spacing: 0.02em;
-      color: var(--text);
-      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+      font-size: clamp(2.2rem, 7vw, 3.25rem);
+      line-height: 1.22;
+      letter-spacing: 0.01em;
+      color: var(--ink);
     }
 
-    .rule {
-      width: 3.5rem;
-      height: 2px;
-      margin: 2rem auto;
-      border-radius: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      opacity: 0.85;
-      box-shadow: 0 0 12px var(--accent-soft);
+    .line {
+      display: block;
     }
 
+    /* The red slash — one deliberate accent, nothing more */
+    .slash {
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: var(--red);
+      margin: 2.25rem 0 2rem;
+    }
+
+    /* Contact row — inline, low-key */
     .contact {
-      margin-top: 0;
-    }
-
-    .contact a {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.85rem;
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 1rem;
-      font-weight: 300;
-      letter-spacing: 0.02em;
-      transition: color 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .contact a:hover,
-    .contact a:focus-visible {
-      color: var(--text);
-      outline: none;
-      transform: translateY(-3px) translateZ(8px);
-    }
-
-    .contact a:focus-visible .email {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    .mail-icon {
       display: flex;
       align-items: center;
-      justify-content: center;
-      width: 3rem;
-      height: 3rem;
-      border-radius: 50%;
-      color: var(--accent);
-      background: linear-gradient(145deg, #fff 0%, var(--accent-soft) 100%);
-      box-shadow:
-        0 4px 12px rgba(233, 30, 99, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95);
-      transition: color 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+      gap: 0.7rem;
+      color: var(--dim);
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.04em;
     }
 
-    .contact a:hover .mail-icon {
-      color: var(--accent-hover);
-      transform: translateY(-4px) scale(1.05) rotateX(8deg);
-      box-shadow:
-        0 12px 28px rgba(233, 30, 99, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 1);
-    }
-
-    .mail-icon svg {
-      width: 1.5rem;
-      height: 1.5rem;
-      stroke: currentColor;
+    .contact svg {
+      width: 0.95rem;
+      height: 0.95rem;
+      stroke: var(--red-dim);
       fill: none;
       stroke-width: 1.75;
       stroke-linecap: round;
       stroke-linejoin: round;
-      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.06));
+      flex-shrink: 0;
+      position: relative;
+      top: 0.5px;
     }
 
-    .email {
+    .contact a {
       font-family: "Cinzel", "Times New Roman", Times, serif;
-      font-size: clamp(1.1rem, 3vw, 1.35rem);
-      font-weight: 500;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-    }
-
-    .contact a:hover .email {
-      color: var(--accent-hover);
-    }
-
-    .label {
-      font-size: 0.9375rem;
+      font-size: 0.92rem;
       font-weight: 400;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(236, 232, 225, 0.18);
+      padding-bottom: 1px;
+      transition: color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .contact a:hover {
+      color: var(--red);
+      border-color: var(--red);
+    }
+
+    .contact a:focus-visible {
+      outline: 1px solid var(--red);
+      outline-offset: 3px;
     }
   </style>
 </head>
 <body>
-  <div class="starfield" aria-hidden="true">
-    <span style="left:8%;top:12%"></span>
-    <span style="left:18%;top:28%"></span>
-    <span style="left:92%;top:8%"></span>
-    <span style="left:78%;top:22%"></span>
-    <span style="left:45%;top:6%"></span>
-    <span style="left:62%;top:18%"></span>
-    <span style="left:12%;top:55%"></span>
-    <span style="left:88%;top:48%"></span>
-    <span style="left:33%;top:72%"></span>
-    <span style="left:55%;top:65%"></span>
-    <span style="left:72%;top:78%"></span>
-    <span style="left:25%;top:88%"></span>
-    <span style="left:95%;top:62%"></span>
-    <span style="left:5%;top:38%"></span>
-    <span style="left:50%;top:42%"></span>
-    <span style="left:38%;top:15%"></span>
-    <span style="left:68%;top:35%"></span>
-    <span style="left:15%;top:75%"></span>
-    <span style="left:82%;top:88%"></span>
-    <span style="left:42%;top:92%"></span>
-  </div>
+  <span class="brand">secretly.vip</span>
+  <span class="year" aria-hidden="true">2026</span>
 
   <main>
-    <div class="glow-card">
-      <p class="mark">secretly.vip</p>
-      <h1>This site's gonna go live soon</h1>
-      <div class="rule" aria-hidden="true"></div>
+    <h1>
+      <span class="line">This site's</span>
+      <span class="line">gonna go live soon.</span>
+    </h1>
 
-      <section class="contact" aria-label="Contact">
-        <a href="mailto:support@secretly.vip">
-          <span class="mail-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <path d="m22 6-10 7L2 6" />
-            </svg>
-          </span>
-          <span class="label">Reach out</span>
-          <span class="email">support@secretly.vip</span>
-        </a>
-      </section>
-    </div>
+    <div class="slash" aria-hidden="true"></div>
+
+    <p class="contact">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <path d="m22 6-10 7L2 6"/>
+      </svg>
+      <span>Reach out —&nbsp;<a href="mailto:support@secretly.vip">support@secretly.vip</a></span>
+    </p>
   </main>
 </body>
 </html>
