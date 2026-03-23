@@ -328,9 +328,7 @@
   <span class="brand">secretly.vip</span>
   <span class="clock" id="clock" aria-live="polite" aria-label="Your local time"></span>
 
-  <audio id="bgm"      src="background_music.mp3" loop preload="auto"></audio>
-  <audio id="sfxOn"   src="modal_open.mp3"       preload="auto"></audio>
-  <audio id="sfxOff"  src="modal_close.mp3"      preload="auto"></audio>
+  <!-- Music decoded via Web Audio API for truly gapless looping -->
 
   <div class="sound-tip" id="soundTip" aria-hidden="true">♪ tap here to listen<br>something soothing</div>
 
@@ -455,13 +453,13 @@
     tick();
     setInterval(tick, 1000);
 
-    /* ── Background music + volume states ── */
-    var bgm    = document.getElementById('bgm');
-    var sfxOn  = document.getElementById('sfxOn');
-    var sfxOff = document.getElementById('sfxOff');
-    var btn    = document.getElementById('soundBtn');
-    var icon   = document.getElementById('soundIcon');
-    var tip    = document.getElementById('soundTip');
+    /* ── Gapless music via Web Audio API ──
+       <audio loop> has an MP3 encoder-delay gap on every repeat.
+       Web Audio API loops at the sample boundary — zero gap, ever.
+    ── */
+    var btn  = document.getElementById('soundBtn');
+    var icon = document.getElementById('soundIcon');
+    var tip  = document.getElementById('soundTip');
     var tipTimer;
 
     function showTip() {
@@ -472,90 +470,122 @@
       tip.classList.remove('shown');
     }
 
-    sfxOn.volume  = 0.6;
-    sfxOff.volume = 0.6;
-
-    /*
-      3-state cycle:  muted → low → high → muted
-      Tapping when muted starts music + sfxOn
-      Tapping into muted stops & plays sfxOff
-    */
     var STATES = [
       {
-        muted: true,  vol: 0,    label: 'Music muted — tap to play',
-        sfxEnter: 'off',
+        gain: 0,    label: 'Music muted — tap to play',
         paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
-               '<line x1="23" y1="9" x2="17" y2="15"/>' +
-               '<line x1="17" y1="9" x2="23" y2="15"/>'
+               '<line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
       },
       {
-        muted: false, vol: 0.25, label: 'Low volume — tap to raise',
-        sfxEnter: 'on',
+        gain: 0.25, label: 'Low volume — tap to raise',
         paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
                '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
       },
       {
-        muted: false, vol: 0.75, label: 'High volume — tap to lower',
-        sfxEnter: null,
+        gain: 0.75, label: 'High volume — tap to lower',
         paths: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>' +
                '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>' +
                '<path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
       }
     ];
 
-    var stateIdx = 0; /* start muted */
-    var started  = false;
+    var ACtx     = window.AudioContext || window.webkitAudioContext;
+    var ctx      = null;
+    var gainNode = null;
+    var source   = null;
+    var audioBuf = null;
+    var playing  = false;
+    var stateIdx = 0;
 
-    function playSfx(sfx) {
-      if (!sfx) return;
-      var el = sfx === 'on' ? sfxOn : sfxOff;
-      el.currentTime = 0;
-      el.play().catch(function () {});
+    function rampGain(val) {
+      if (!gainNode) return;
+      gainNode.gain.cancelScheduledValues(ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(val, ctx.currentTime + 0.4);
     }
 
-    function applyState(idx, withSfx) {
+    function applyState(idx) {
       var s = STATES[idx];
-      bgm.muted  = s.muted;
-      bgm.volume = s.vol;
       icon.innerHTML = s.paths;
       btn.setAttribute('aria-label', s.label);
-      btn.classList.toggle('is-muted',  idx === 0);
-      btn.classList.toggle('vol-low',   idx === 1);
-      btn.classList.toggle('vol-high',  idx === 2);
-      if (withSfx) playSfx(s.sfxEnter);
+      btn.classList.toggle('is-muted', idx === 0);
+      btn.classList.toggle('vol-low',  idx === 1);
+      btn.classList.toggle('vol-high', idx === 2);
+      rampGain(s.gain);
       stateIdx = idx;
+    }
+
+    function startSource() {
+      if (source) { try { source.stop(); } catch (e) {} source.disconnect(); }
+      source = ctx.createBufferSource();
+      source.buffer = audioBuf;
+      source.loop   = true;           /* gapless at sample level */
+      source.connect(gainNode);
+      source.start(0);
+      playing = true;
+    }
+
+    function initCtx() {
+      if (ctx) return;
+      ctx      = new ACtx();
+      gainNode = ctx.createGain();
+      gainNode.gain.value = 0;        /* start silent */
+      gainNode.connect(ctx.destination);
+
+      /* Fetch + decode in background — ready before user taps */
+      fetch('background_music.mp3')
+        .then(function (r) { return r.arrayBuffer(); })
+        .then(function (ab) { return ctx.decodeAudioData(ab); })
+        .then(function (buf) {
+          audioBuf = buf;
+          /* If context already running (desktop autoplay), start immediately */
+          if (ctx.state === 'running' && !playing) {
+            startSource();
+            applyState(1);            /* low volume, no interaction needed */
+            btn.classList.remove('needs-tap');
+          }
+        })
+        .catch(function () {});       /* network/decode error: silent fail */
     }
 
     btn.addEventListener('click', function () {
       hideTip();
-      var next = (stateIdx + 1) % STATES.length;
 
-      if (!started && next !== 0) {
-        btn.classList.remove('needs-tap');
-        bgm.play().then(function () {
-          started = true;
-          applyState(next, true);
-        }).catch(function () {});
+      /* First tap: resume context (required by browser autoplay policy) */
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().then(function () {
+          if (!playing && audioBuf) startSource();
+          var next = playing ? (stateIdx + 1) % STATES.length : 1;
+          applyState(next);
+          btn.classList.remove('needs-tap');
+        });
         return;
       }
 
-      if (!started) return;
-      applyState(next, true);
+      var next = (stateIdx + 1) % STATES.length;
+      applyState(next);
     });
 
-    /* Try silent autoplay */
-    bgm.volume = 0.25;
-    bgm.play().then(function () {
-      started = true;
-      btn.classList.remove('needs-tap');
-      stateIdx = 0;
-      applyState(1, false);
-    }).catch(function () {
-      applyState(0, false);
+    /* Init audio context + try silent autoplay */
+    initCtx();
+    if (ctx) {
+      ctx.resume().then(function () {
+        /* On desktop the context is already running after resume */
+        if (ctx.state === 'running' && audioBuf && !playing) {
+          startSource();
+          applyState(1);
+          btn.classList.remove('needs-tap');
+        } else if (ctx.state === 'suspended') {
+          /* Mobile: blocked — show tooltip */
+          applyState(0);
+          showTip();
+          setTimeout(hideTip, 9000);
+        }
+      });
+    } else {
+      applyState(0);
       showTip();
-      /* Auto-dismiss tip after 9s so it doesn't linger forever */
       setTimeout(hideTip, 9000);
-    });
+    }
   })();
   </script>
 </body>
