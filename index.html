@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>secretly.vip — coming soon</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23e52222'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='19' font-weight='700' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E" />
@@ -75,16 +75,18 @@
       z-index: 10;
     }
 
-    /* Year — pinned bottom right, quiet */
-    .year {
+    /* Local clock — pinned bottom left */
+    .clock {
       position: fixed;
       bottom: 1.5rem;
-      right: 1.75rem;
-      font-size: 0.7rem;
+      left: 1.75rem;
+      font-size: 0.68rem;
       font-weight: 400;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--dim);
       z-index: 10;
+      font-variant-numeric: tabular-nums;
     }
 
     main {
@@ -163,7 +165,7 @@
 </head>
 <body>
   <span class="brand">secretly.vip</span>
-  <span class="year" aria-hidden="true">2026</span>
+  <span class="clock" id="clock" aria-live="polite" aria-label="Your local time"></span>
 
   <main>
     <h1>
@@ -181,5 +183,29 @@
       <span>Reach out —&nbsp;<a href="mailto:support@secretly.vip">support@secretly.vip</a></span>
     </p>
   </main>
+  <script>
+    (function () {
+      var el = document.getElementById('clock');
+      var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      function tick() {
+        var now = new Date();
+        var day   = DAYS[now.getDay()];
+        var date  = pad(now.getDate());
+        var month = MONTHS[now.getMonth()];
+        var year  = now.getFullYear();
+        var h     = pad(now.getHours());
+        var m     = pad(now.getMinutes());
+        var s     = pad(now.getSeconds());
+        el.textContent = day + ' · ' + date + ' ' + month + ' ' + year + ' · ' + h + ':' + m + ':' + s;
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
 </body>
 </html>
