@@ -6,21 +6,33 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>secretly.vip — coming soon</title>
+  <!--
+    Preload font files before any paint.
+    crossorigin is required even for same-origin fonts because @font-face
+    fetches use CORS mode — the preload must match or the browser downloads twice.
+  -->
+  <link rel="preload" href="fonts/cinzel-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23e52222'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='19' font-weight='700' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E" />
   <style>
+    /*
+      font-display: block — text stays INVISIBLE while font downloads (up to ~3s).
+      Combined with preload above, the font is ready in <200ms on most connections.
+      No fallback font is ever shown, so no flash/swap at all.
+    */
     @font-face {
       font-family: "Cinzel";
       src: url("fonts/cinzel-latin.woff2") format("woff2");
       font-weight: 400 600;
       font-style: normal;
-      font-display: swap;
+      font-display: block;
     }
     @font-face {
       font-family: "Outfit";
       src: url("fonts/outfit-latin.woff2") format("woff2");
       font-weight: 300 500;
       font-style: normal;
-      font-display: swap;
+      font-display: block;
     }
 
     :root {
@@ -45,10 +57,9 @@
       font-family: "Outfit", system-ui, -apple-system, sans-serif;
       font-weight: 400;
       min-height: 100vh;
-      min-height: 100dvh; /* dynamic viewport height — avoids iOS browser-chrome issues */
+      min-height: 100dvh;
       display: grid;
       place-items: center;
-      /* Reserve space for fixed brand (top) and clock (bottom), plus safe areas */
       padding:
         calc(3.5rem + env(safe-area-inset-top, 0px))
         calc(1.5rem + env(safe-area-inset-right, 0px))
@@ -57,7 +68,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Film grain — keeps it from feeling sterile */
     body::after {
       content: "";
       position: fixed;
@@ -68,7 +78,6 @@
       background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
     }
 
-    /* Brand mark — respects notch / status bar */
     .brand {
       position: fixed;
       top: calc(1.25rem + env(safe-area-inset-top, 0px));
@@ -82,7 +91,6 @@
       line-height: 1;
     }
 
-    /* Local clock — respects home bar on iOS */
     .clock {
       position: fixed;
       bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
@@ -109,18 +117,29 @@
     h1 {
       font-family: "Cinzel", "Times New Roman", Times, serif;
       font-weight: 600;
-      /* Tighter minimum so it never overflows on small phones */
       font-size: clamp(1.75rem, 7vw, 3.25rem);
-      line-height: 1.22;
+      line-height: 1.28;
       letter-spacing: 0.01em;
       color: var(--ink);
+      /* Hidden until font is loaded and matrix animation begins */
+      opacity: 0;
+      min-height: 2.6em; /* reserves layout space so page doesn't jump */
+      word-break: break-word;
     }
 
-    .line {
-      display: block;
+    /* Cursor blink during decode */
+    h1.decoding::after {
+      content: '|';
+      color: var(--red);
+      animation: blink 0.6s step-end infinite;
+      margin-left: 2px;
     }
 
-    /* The red slash — one deliberate accent, nothing more */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
     .slash {
       display: block;
       width: 100%;
@@ -129,7 +148,6 @@
       margin: 2rem 0 1.75rem;
     }
 
-    /* Contact row — wraps gracefully on narrow screens */
     .contact {
       display: flex;
       align-items: flex-start;
@@ -150,7 +168,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
       flex-shrink: 0;
-      margin-top: 0.15em; /* optical alignment when text wraps */
+      margin-top: 0.15em;
     }
 
     .contact-text {
@@ -169,25 +187,14 @@
       border-bottom: 1px solid rgba(16, 13, 13, 0.15);
       padding-bottom: 1px;
       transition: color 0.18s ease, border-color 0.18s ease;
-      /* Allow email to break at the @ or dot if needed */
       word-break: break-all;
     }
 
-    .contact a:hover {
-      color: var(--red);
-      border-color: var(--red);
-    }
+    .contact a:hover  { color: var(--red); border-color: var(--red); }
+    .contact a:focus-visible { outline: 1px solid var(--red); outline-offset: 3px; }
 
-    .contact a:focus-visible {
-      outline: 1px solid var(--red);
-      outline-offset: 3px;
-    }
-
-    /* On very small screens, simplify the clock to just time + date */
     @media (max-width: 360px) {
-      h1 {
-        font-size: 1.6rem;
-      }
+      h1 { font-size: 1.6rem; }
     }
   </style>
 </head>
@@ -196,13 +203,8 @@
   <span class="clock" id="clock" aria-live="polite" aria-label="Your local time"></span>
 
   <main>
-    <h1>
-      <span class="line">This site's</span>
-      <span class="line">gonna go live soon.</span>
-    </h1>
-
+    <h1 id="headline" aria-live="polite"></h1>
     <div class="slash" aria-hidden="true"></div>
-
     <p class="contact">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -211,31 +213,105 @@
       <span class="contact-text">Reach out — <a href="mailto:support@secretly.vip">support@secretly.vip</a></span>
     </p>
   </main>
+
   <script>
-    (function () {
-      var el = document.getElementById('clock');
-      var DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      var DAYS_L = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-      var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  (function () {
+    /* ── Matrix decode characters ── */
+    var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?><#@|/\\$%^&*~';
 
-      function pad(n) { return String(n).padStart(2, '0'); }
+    /* ── Quotes: hacking/launch themed, random each visit ── */
+    var QUOTES = [
+      'Establishing secure connection.',
+      'Decrypting the launch sequence.',
+      'Access denied. For now.',
+      'Systems are being compiled.',
+      'Signal acquired. Stand by.',
+      'Bypassing the firewall.',
+      'The protocol is being finalized.',
+      'Loading classified content.',
+      'Patience is a root privilege.',
+      'Cracking the launch code.',
+      'Initializing final sequence.',
+      'Breach imminent. Please wait.',
+    ];
 
-      function tick() {
-        var now   = new Date();
-        var narrow = window.innerWidth < 480;
-        var day   = narrow ? DAYS[now.getDay()] : DAYS_L[now.getDay()];
-        var date  = pad(now.getDate());
-        var month = MONTHS[now.getMonth()];
-        var year  = now.getFullYear();
-        var h     = pad(now.getHours());
-        var m     = pad(now.getMinutes());
-        var s     = pad(now.getSeconds());
-        el.textContent = day + ' · ' + date + ' ' + month + ' ' + year + ' · ' + h + ':' + m + ':' + s;
-      }
+    function rchar() {
+      return CHARS[Math.floor(Math.random() * CHARS.length)];
+    }
 
-      tick();
-      setInterval(tick, 1000);
-    })();
+    function decode(el, text) {
+      var FRAME_MS = 38;   /* ~26fps */
+      var STEP_MS  = 52;   /* ms before each char resolves */
+      var start    = Date.now();
+
+      el.classList.add('decoding');
+
+      var timer = setInterval(function () {
+        var elapsed = Date.now() - start;
+        var out = '';
+
+        for (var i = 0; i < text.length; i++) {
+          var ch = text[i];
+          if (ch === ' ') {
+            out += ' ';
+          } else if (elapsed > i * STEP_MS) {
+            out += ch;          /* resolved */
+          } else {
+            out += rchar();     /* still scrambling */
+          }
+        }
+
+        el.textContent = out;
+
+        /* Finish when every character has resolved + small buffer */
+        if (elapsed > (text.length - 1) * STEP_MS + 150) {
+          clearInterval(timer);
+          el.classList.remove('decoding');
+          el.textContent = text;
+        }
+      }, FRAME_MS);
+    }
+
+    /* ── Wait for custom fonts, then reveal headline ── */
+    var h1    = document.getElementById('headline');
+    var quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+
+    function start() {
+      h1.style.opacity = '1';
+      decode(h1, quote);
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(start);
+    } else {
+      /* Older browsers: short delay then show */
+      setTimeout(function () { h1.style.opacity = '1'; h1.textContent = quote; }, 200);
+    }
+
+    /* ── Local clock ── */
+    var clockEl = document.getElementById('clock');
+    var DAYS_S  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var DAYS_L  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var MONTHS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      var now    = new Date();
+      var narrow = window.innerWidth < 480;
+      var day    = narrow ? DAYS_S[now.getDay()] : DAYS_L[now.getDay()];
+      var date   = pad(now.getDate());
+      var month  = MONTHS[now.getMonth()];
+      var year   = now.getFullYear();
+      var h      = pad(now.getHours());
+      var m      = pad(now.getMinutes());
+      var s      = pad(now.getSeconds());
+      clockEl.textContent = day + ' · ' + date + ' ' + month + ' ' + year + ' · ' + h + ':' + m + ':' + s;
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  })();
   </script>
 </body>
 </html>
