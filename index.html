@@ -24,11 +24,11 @@
     }
 
     :root {
-      --bg: #0d0a0a;
-      --ink: #ece8e1;
-      --dim: rgba(236, 232, 225, 0.42);
+      --bg: #f7f4f0;
+      --ink: #100d0d;
+      --dim: rgba(16, 13, 13, 0.45);
       --red: #e52222;
-      --red-dim: rgba(229, 34, 34, 0.55);
+      --red-dim: rgba(229, 34, 34, 0.6);
     }
 
     *, *::before, *::after {
@@ -51,14 +51,14 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Film grain — a single subtle texture that makes the dark feel analog */
+    /* Film grain — keeps it from feeling sterile */
     body::after {
       content: "";
       position: fixed;
       inset: 0;
       z-index: 100;
       pointer-events: none;
-      opacity: 0.055;
+      opacity: 0.03;
       background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
     }
 
@@ -68,7 +68,7 @@
       top: 1.5rem;
       left: 1.75rem;
       font-size: 0.7rem;
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--red);
@@ -81,7 +81,7 @@
       bottom: 1.5rem;
       right: 1.75rem;
       font-size: 0.7rem;
-      font-weight: 300;
+      font-weight: 400;
       letter-spacing: 0.1em;
       color: var(--dim);
       z-index: 10;
@@ -94,7 +94,7 @@
 
     h1 {
       font-family: "Cinzel", "Times New Roman", Times, serif;
-      font-weight: 400;
+      font-weight: 600;
       font-size: clamp(2.2rem, 7vw, 3.25rem);
       line-height: 1.22;
       letter-spacing: 0.01em;
@@ -121,7 +121,7 @@
       gap: 0.7rem;
       color: var(--dim);
       font-size: 0.9rem;
-      font-weight: 300;
+      font-weight: 400;
       letter-spacing: 0.04em;
     }
 
@@ -141,7 +141,7 @@
     .contact a {
       font-family: "Cinzel", "Times New Roman", Times, serif;
       font-size: 0.92rem;
-      font-weight: 400;
+      font-weight: 600;
       letter-spacing: 0.06em;
       color: var(--ink);
       text-decoration: none;
