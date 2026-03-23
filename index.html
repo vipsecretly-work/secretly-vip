@@ -95,7 +95,8 @@
       position: fixed;
       bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
       left: calc(1.25rem + env(safe-area-inset-left, 0px));
-      right: calc(1.25rem + env(safe-area-inset-right, 0px));
+      /* Leave 2.75rem on the right for the sound button */
+      right: calc(2.75rem + env(safe-area-inset-right, 0px));
       font-size: 0.65rem;
       font-weight: 400;
       letter-spacing: 0.12em;
@@ -107,6 +108,55 @@
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1;
+    }
+
+    /* ── Sound toggle ── */
+    .sound-btn {
+      position: fixed;
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      right: calc(1.1rem + env(safe-area-inset-right, 0px));
+      z-index: 10;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      color: var(--dim);
+      /* 2rem visual, but 2.75rem touch target */
+      width: 2.75rem;
+      height: 2.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease, opacity 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .sound-btn svg {
+      width: 1rem;
+      height: 1rem;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    .sound-btn:hover { color: var(--ink); }
+    .sound-btn:focus-visible { outline: 1px solid var(--red); outline-offset: 3px; border-radius: 2px; }
+
+    /* Muted state — red and at 60% so it's clearly "off" */
+    .sound-btn.is-muted { color: var(--red); opacity: 0.6; }
+
+    /* Waiting for first interaction — pulse gently to attract attention */
+    .sound-btn.needs-tap {
+      animation: soundPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes soundPulse {
+      0%, 100% { opacity: 0.45; }
+      50%       { opacity: 0.9; }
     }
 
     main {
@@ -191,6 +241,22 @@
 <body>
   <span class="brand">secretly.vip</span>
   <span class="clock" id="clock" aria-live="polite" aria-label="Your local time"></span>
+
+  <audio id="bgm" src="background_music.mp3" loop preload="auto"></audio>
+
+  <button class="sound-btn needs-tap" id="soundBtn" aria-label="Toggle music" title="Toggle music">
+    <!-- Icon swapped by JS: sound-on or sound-off -->
+    <svg id="iconOn" viewBox="0 0 24 24" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    </svg>
+    <svg id="iconOff" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+  </button>
 
   <main>
     <h1 id="headline" aria-live="polite"></h1>
@@ -305,6 +371,55 @@
 
     tick();
     setInterval(tick, 1000);
+
+    /* ── Background music ── */
+    var bgm     = document.getElementById('bgm');
+    var btn     = document.getElementById('soundBtn');
+    var iconOn  = document.getElementById('iconOn');
+    var iconOff = document.getElementById('iconOff');
+    var muted   = false;
+    var started = false;
+
+    bgm.volume = 0.25; /* low background level */
+
+    function setMuted(m) {
+      muted      = m;
+      bgm.muted  = m;
+      iconOn.style.display  = m ? 'none' : '';
+      iconOff.style.display = m ? ''     : 'none';
+      btn.classList.toggle('is-muted', m);
+      btn.setAttribute('aria-label', m ? 'Unmute music' : 'Mute music');
+    }
+
+    function startMusic() {
+      if (started) return;
+      started = true;
+      btn.classList.remove('needs-tap');
+      bgm.play().then(function () {
+        setMuted(false);
+      }).catch(function () {
+        /* Play failed even after interaction — keep button visible */
+        started = false;
+      });
+    }
+
+    btn.addEventListener('click', function () {
+      if (!started) {
+        startMusic();
+      } else {
+        setMuted(!muted);
+      }
+    });
+
+    /* Try autoplay silently — works on desktop if user has interacted before */
+    bgm.play().then(function () {
+      started = true;
+      btn.classList.remove('needs-tap');
+      setMuted(false);
+    }).catch(function () {
+      /* Autoplay blocked — button stays in needs-tap state, user taps to start */
+      setMuted(true);
+    });
   })();
   </script>
 </body>
