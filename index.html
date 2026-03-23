@@ -113,20 +113,22 @@
     /* ── Sound toggle ── */
     .sound-btn {
       position: fixed;
-      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-      right: calc(1.1rem + env(safe-area-inset-right, 0px));
+      bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
+      right: calc(1rem + env(safe-area-inset-right, 0px));
       z-index: 10;
       background: none;
       border: none;
-      padding: 0;
+      padding: 0.4rem;
       margin: 0;
       cursor: pointer;
       color: var(--dim);
-      /* 2rem visual, but 2.75rem touch target */
-      width: 2.75rem;
-      height: 2.75rem;
       display: flex;
+      flex-direction: column;
       align-items: center;
+      gap: 4px;
+      /* Generous touch target */
+      min-width: 2.75rem;
+      min-height: 2.75rem;
       justify-content: center;
       transition: color 0.2s ease, opacity 0.2s ease;
       -webkit-tap-highlight-color: transparent;
@@ -134,23 +136,53 @@
     }
 
     .sound-btn svg {
-      width: 1rem;
-      height: 1rem;
+      width: 1.05rem;
+      height: 1.05rem;
       stroke: currentColor;
       fill: none;
       stroke-width: 1.75;
       stroke-linecap: round;
       stroke-linejoin: round;
       pointer-events: none;
+      flex-shrink: 0;
     }
 
+    /* Volume bars — 3 vertical bars like a signal indicator */
+    .vol-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2.5px;
+      height: 8px;
+      pointer-events: none;
+    }
+    .vol-bars span {
+      width: 3px;
+      border-radius: 1.5px;
+      background: currentColor;
+      transition: opacity 0.25s ease, background 0.25s ease;
+    }
+    .vol-bars span:nth-child(1) { height: 3px; }
+    .vol-bars span:nth-child(2) { height: 5.5px; }
+    .vol-bars span:nth-child(3) { height: 8px; }
+
+    /* Muted: all bars dimmed */
+    .sound-btn.is-muted .vol-bars span { opacity: 0.18; }
+
+    /* Low: only first bar lit */
+    .sound-btn.vol-low .vol-bars span:nth-child(1) { opacity: 1; }
+    .sound-btn.vol-low .vol-bars span:nth-child(2) { opacity: 0.18; }
+    .sound-btn.vol-low .vol-bars span:nth-child(3) { opacity: 0.18; }
+
+    /* High: all bars lit */
+    .sound-btn.vol-high .vol-bars span { opacity: 1; }
+
     .sound-btn:hover { color: var(--ink); }
-    .sound-btn:focus-visible { outline: 1px solid var(--red); outline-offset: 3px; border-radius: 2px; }
+    .sound-btn:focus-visible { outline: 1px solid var(--red); outline-offset: 4px; border-radius: 4px; }
 
     /* Muted state */
-    .sound-btn.is-muted { color: var(--red); opacity: 0.55; }
+    .sound-btn.is-muted { color: var(--red); opacity: 0.6; }
 
-    /* Waiting for first interaction — pulse gently to attract attention */
+    /* Waiting for first interaction */
     .sound-btn.needs-tap {
       animation: soundPulse 2.2s ease-in-out infinite;
     }
@@ -303,9 +335,10 @@
   <div class="sound-tip" id="soundTip" aria-hidden="true">♪ tap here to listen<br>something soothing</div>
 
   <button class="sound-btn needs-tap" id="soundBtn" aria-label="Music muted — tap to play">
-    <svg id="soundIcon" viewBox="0 0 24 24" aria-hidden="true">
-      <!-- content set by JS based on volume state -->
-    </svg>
+    <svg id="soundIcon" viewBox="0 0 24 24" aria-hidden="true"></svg>
+    <span class="vol-bars" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </span>
   </button>
 
   <main>
@@ -486,7 +519,9 @@
       bgm.volume = s.vol;
       icon.innerHTML = s.paths;
       btn.setAttribute('aria-label', s.label);
-      btn.classList.toggle('is-muted', s.muted);
+      btn.classList.toggle('is-muted',  idx === 0);
+      btn.classList.toggle('vol-low',   idx === 1);
+      btn.classList.toggle('vol-high',  idx === 2);
       if (withSfx) playSfx(s.sfxEnter);
       stateIdx = idx;
     }
