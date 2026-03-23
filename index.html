@@ -423,9 +423,8 @@
     setInterval(tick, 1000);
 
     /* ── Audio: splash intro → gapless background loop ──
-       1. splash_logo_audio.mp3 plays once on open (autoplay or first tap)
-       2. When it ends, background_music.mp3 loops forever, zero gap
-       Both go through a GainNode so the volume button always works.
+       Calls ctx.resume() + src.start() synchronously inside the click
+       handler so iOS Safari and strict-autoplay Chrome both unlock correctly.
     ── */
     var btn  = document.getElementById('soundBtn');
     var icon = document.getElementById('soundIcon');
@@ -464,17 +463,18 @@
     var ACtx        = window.AudioContext || window.webkitAudioContext;
     var ctx         = null;
     var gainNode    = null;
-    var introBuf    = null;   /* splash_logo_audio decoded buffer */
-    var loopBuf     = null;   /* background_music decoded buffer  */
+    var introBuf    = null;
+    var loopBuf     = null;
     var loopSrc     = null;
-    var phase       = 'idle'; /* 'idle' | 'intro' | 'loop'        */
+    var phase       = 'idle'; /* 'idle' | 'intro' | 'loop' */
     var stateIdx    = 0;
-    var pendingPlay = false;  /* user tapped before buffers loaded */
+    var pendingPlay = false;  /* user tapped before intro buffer loaded */
 
-    function rampGain(val) {
+    function setGain(val) {
       if (!gainNode) return;
-      gainNode.gain.cancelScheduledValues(ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(val, ctx.currentTime + 0.4);
+      /* Anchor current value first so linearRamp has a start point */
+      gainNode.gain.setValueAtTime(gainNode.gain.value, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(val, ctx.currentTime + 0.35);
     }
 
     function applyState(idx) {
@@ -484,7 +484,7 @@
       btn.classList.toggle('is-muted', idx === 0);
       btn.classList.toggle('vol-low',  idx === 1);
       btn.classList.toggle('vol-high', idx === 2);
-      rampGain(s.gain);
+      setGain(s.gain);
       stateIdx = idx;
     }
 
@@ -492,25 +492,22 @@
       if (loopSrc) { try { loopSrc.stop(); } catch (e) {} loopSrc.disconnect(); }
       loopSrc = ctx.createBufferSource();
       loopSrc.buffer = loopBuf;
-      loopSrc.loop   = true;          /* sample-perfect, zero gap */
+      loopSrc.loop   = true;
       loopSrc.connect(gainNode);
       loopSrc.start(0);
       phase = 'loop';
-      /* If user muted during intro, keep that; otherwise stay low */
       if (stateIdx === 0) applyState(1);
     }
 
     function startIntro() {
-      if (phase !== 'idle') return;
+      if (phase !== 'idle' || !introBuf) return;
       phase = 'intro';
 
       var src = ctx.createBufferSource();
       src.buffer = introBuf;
       src.loop   = false;
       src.connect(gainNode);
-
       src.onended = function () {
-        /* Chain straight into the loop — wait for loopBuf if still loading */
         if (loopBuf) {
           startLoop();
         } else {
@@ -519,17 +516,11 @@
           }, 80);
         }
       };
-
       src.start(0);
+
       hideTip();
       btn.classList.remove('needs-tap');
-      applyState(1);  /* low volume for the whole session */
-    }
-
-    function tryStart() {
-      /* Only proceed if context is running and intro buffer is ready */
-      if (phase !== 'idle' || !introBuf || ctx.state !== 'running') return;
-      startIntro();
+      applyState(1);
     }
 
     function initCtx() {
@@ -539,16 +530,13 @@
       gainNode.gain.value = 0;
       gainNode.connect(ctx.destination);
 
-      /* Fetch both files in parallel; start intro as soon as it's ready */
       fetch('splash_logo_audio.mp3')
         .then(function (r) { return r.arrayBuffer(); })
         .then(function (ab) { return ctx.decodeAudioData(ab); })
         .then(function (buf) {
           introBuf = buf;
-          if (pendingPlay || ctx.state === 'running') {
-            pendingPlay = false;
-            startIntro();
-          }
+          /* pendingPlay = user already tapped but buffer wasn't ready yet */
+          if (pendingPlay) { pendingPlay = false; startIntro(); }
         })
         .catch(function () {});
 
@@ -563,35 +551,35 @@
       hideTip();
 
       if (phase === 'idle') {
-        /* First ever interaction — need to start the intro */
         if (!ctx) initCtx();
-        if (ctx.state === 'suspended') {
-          ctx.resume().then(function () {
-            if (introBuf) startIntro(); else pendingPlay = true;
-            btn.classList.remove('needs-tap');
-          });
+
+        /* Unlock AudioContext synchronously within the user gesture.
+           Do NOT await the promise — call resume() + start() in the same
+           synchronous frame so iOS Safari accepts it. */
+        if (ctx.state !== 'running') ctx.resume();
+
+        if (introBuf) {
+          startIntro();
         } else {
-          if (introBuf) startIntro(); else pendingPlay = true;
+          /* Buffer still loading — mark pending, show visual feedback */
+          pendingPlay = true;
           btn.classList.remove('needs-tap');
+          applyState(1);
         }
         return;
       }
 
-      /* Intro playing or loop running — cycle volume */
-      var next = (stateIdx + 1) % STATES.length;
-      applyState(next);
+      /* Intro or loop already running — cycle volume states */
+      applyState((stateIdx + 1) % STATES.length);
     });
 
-    /* Show hint on load; music dismisses it when it starts */
+    /* Show hint on load; startIntro() / startLoop() will dismiss it */
     applyState(0);
     showTip();
     tipDismissTimer = setTimeout(hideTip, 10000);
 
-    /* Try autoplay on desktop (mobile stays muted until tap) */
+    /* Prefetch buffers in background so they're ready when user taps */
     initCtx();
-    if (ctx) {
-      ctx.resume().then(function () { tryStart(); }).catch(function () {});
-    }
   })();
   </script>
 </body>
