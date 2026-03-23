@@ -117,12 +117,11 @@
     h1 {
       font-family: "Cinzel", "Times New Roman", Times, serif;
       font-weight: 600;
-      font-size: clamp(1.2rem, 4.5vw, 1.9rem);
+      font-size: clamp(1rem, 3.8vw, 1.45rem);
       line-height: 1.3;
-      letter-spacing: 0.01em;
+      letter-spacing: 0em;
       color: var(--ink);
       opacity: 0;
-      min-height: 2.7em;
       word-break: break-word;
     }
 
@@ -144,7 +143,7 @@
       width: 100%;
       height: 1px;
       background: var(--red);
-      margin: 2rem 0 1.75rem;
+      margin: 1.25rem 0 1.5rem;
     }
 
     .contact {
@@ -193,7 +192,7 @@
     .contact a:focus-visible { outline: 1px solid var(--red); outline-offset: 3px; }
 
     @media (max-width: 360px) {
-      h1 { font-size: 1.1rem; }
+      h1 { font-size: 0.95rem; }
     }
   </style>
 </head>
@@ -261,8 +260,8 @@
 
     /* Patch decode() to accept an optional onDone callback */
     function decode(el, text, onDone) {
-      var FRAME_MS = 38;
-      var STEP_MS  = 52;
+      var FRAME_MS = 30;
+      var STEP_MS  = 32;
       var start    = Date.now();
       el.classList.add('decoding');
 
