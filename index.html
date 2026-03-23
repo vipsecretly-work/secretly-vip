@@ -126,23 +126,8 @@
       word-break: break-word;
     }
 
-    /* Dimmed scrambling chars — makes settled text clearly readable */
-    h1 .sc {
-      color: var(--dim);
-      opacity: 0.5;
-    }
-
-    /* Cursor blink during decode */
-    h1.decoding::after {
-      content: '|';
-      color: var(--red);
-      animation: blink 0.7s step-end infinite;
-      margin-left: 1px;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0; }
+    h1 {
+      transition: opacity 0.55s ease, filter 0.55s ease;
     }
 
     .slash {
@@ -222,9 +207,6 @@
   <script>
   (function () {
     /* ── Decode characters — letters + digits only, no HTML-breaking symbols ── */
-    var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-    /* ── Quotes: intriguing but not threatening ── */
     var QUOTES = [
       'Establishing secure connection.',
       'Decrypting the launch sequence.',
@@ -240,98 +222,59 @@
       'The signal is almost clear.',
     ];
 
-    function rchar() {
-      return CHARS[Math.floor(Math.random() * CHARS.length)];
-    }
+    var h1     = document.getElementById('headline');
+    var qIndex = Math.floor(Math.random() * QUOTES.length);
+    var busy   = false;
 
-    /* ── Cycling quotes — new one every 5s, auto-decoded ── */
-    var h1       = document.getElementById('headline');
-    var qIndex   = Math.floor(Math.random() * QUOTES.length);
-    var cycling  = false;
-
-    /* Measure exact pixel height of a text string without showing it */
-    function measureHeight(el, text) {
-      el.textContent = text;
-      var h = el.offsetHeight;
-      el.textContent = '';
+    /* Measure exact height a text string needs while element is invisible */
+    function measureHeight(text) {
+      h1.textContent = text;
+      var h = h1.offsetHeight;
+      h1.textContent = '';
       return h;
     }
 
-    function nextQuote() {
-      if (cycling) return;
-      cycling = true;
+    function showQuote(text, onDone) {
+      var targetH = measureHeight(text);
+      h1.style.height = targetH + 'px';
+      h1.textContent  = text;
 
-      h1.style.transition = 'opacity 0.25s ease';
+      /* Start from blurred-out, then animate in */
+      h1.style.transition = 'none';
       h1.style.opacity    = '0';
+      h1.style.filter     = 'blur(10px)';
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          h1.style.transition = 'opacity 0.65s ease, filter 0.65s ease';
+          h1.style.opacity    = '1';
+          h1.style.filter     = 'blur(0px)';
+        });
+      });
+
+      setTimeout(function () {
+        h1.style.height = '';
+        if (onDone) onDone();
+      }, 700);
+    }
+
+    function nextQuote() {
+      if (busy) return;
+      busy = true;
+
+      h1.style.transition = 'opacity 0.45s ease, filter 0.45s ease';
+      h1.style.opacity    = '0';
+      h1.style.filter     = 'blur(10px)';
 
       setTimeout(function () {
         qIndex = (qIndex + 1) % QUOTES.length;
-        var text = QUOTES[qIndex];
-
-        /* Element is invisible (opacity 0) — safe to measure without flash */
-        h1.style.transition = '';
-        var targetH = measureHeight(h1, text);
-        h1.style.height = targetH + 'px';   /* lock height for this quote */
-        h1.style.opacity = '1';
-
-        decode(h1, text, function () {
-          h1.style.height = '';             /* release after decode done */
-          cycling = false;
-        });
-      }, 280);
-    }
-
-    function decode(el, text, onDone) {
-      var FRAME_MS = 30;
-      var STEP_MS  = 36;
-      var start    = Date.now();
-      el.classList.add('decoding');
-
-      var timer = setInterval(function () {
-        var elapsed  = Date.now() - start;
-        var settled  = '';
-        var scramble = '';
-
-        for (var i = 0; i < text.length; i++) {
-          var ch = text[i];
-          if (ch === ' ') {
-            if (elapsed > i * STEP_MS) settled += ' ';
-            else scramble += ' ';
-          } else if (elapsed > i * STEP_MS) {
-            /* Flush any pending scramble before adding settled char */
-            if (scramble.length) {
-              settled += '<span class="sc">' + scramble + '</span>';
-              scramble = '';
-            }
-            settled += ch;
-          } else {
-            scramble += rchar();
-          }
-        }
-
-        /* Remaining scramble chars */
-        el.innerHTML = scramble.length
-          ? settled + '<span class="sc">' + scramble + '</span>'
-          : settled;
-
-        if (elapsed > (text.length - 1) * STEP_MS + 150) {
-          clearInterval(timer);
-          el.classList.remove('decoding');
-          el.textContent = text;
-          if (onDone) onDone();
-        }
-      }, FRAME_MS);
+        showQuote(QUOTES[qIndex], function () { busy = false; });
+      }, 500);
     }
 
     function start() {
-      var text    = QUOTES[qIndex];
-      var targetH = measureHeight(h1, text);
-      h1.style.height  = targetH + 'px';
-      h1.style.opacity = '1';
-
-      decode(h1, text, function () {
-        h1.style.height = '';
-        cycling = false;
+      showQuote(QUOTES[qIndex], function () {
+        busy = false;
         setInterval(nextQuote, 5000);
       });
     }
@@ -339,7 +282,7 @@
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(start);
     } else {
-      setTimeout(function () { h1.style.opacity = '1'; h1.textContent = QUOTES[qIndex]; cycling = false; setInterval(nextQuote, 5000); }, 200);
+      setTimeout(start, 200);
     }
 
     /* ── Local clock ── */
@@ -354,13 +297,10 @@
       var now    = new Date();
       var narrow = window.innerWidth < 480;
       var day    = narrow ? DAYS_S[now.getDay()] : DAYS_L[now.getDay()];
-      var date   = pad(now.getDate());
-      var month  = MONTHS[now.getMonth()];
-      var year   = now.getFullYear();
-      var h      = pad(now.getHours());
-      var m      = pad(now.getMinutes());
-      var s      = pad(now.getSeconds());
-      clockEl.textContent = day + ' · ' + date + ' ' + month + ' ' + year + ' · ' + h + ':' + m + ':' + s;
+      clockEl.textContent =
+        day + ' · ' +
+        pad(now.getDate()) + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear() +
+        ' · ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
     }
 
     tick();
