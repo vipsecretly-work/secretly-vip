@@ -41,6 +41,7 @@
       --dim: rgba(16, 13, 13, 0.45);
       --red: #e52222;
       --red-dim: rgba(229, 34, 34, 0.6);
+      --red-light: #d96060;   /* light red for UI chrome */
     }
 
     *, *::before, *::after {
@@ -82,11 +83,11 @@
       position: fixed;
       top: calc(1.25rem + env(safe-area-inset-top, 0px));
       left: calc(1.25rem + env(safe-area-inset-left, 0px));
-      font-size: 0.68rem;
+      font-size: 0.8rem;
       font-weight: 600;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--red);
+      color: var(--red-light);
       z-index: 10;
       line-height: 1;
     }
@@ -100,11 +101,11 @@
       display: flex;
       align-items: center;
       gap: 0.4em;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: var(--red-light);
       z-index: 12;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
@@ -112,14 +113,14 @@
       transition: opacity 0.25s ease;
     }
     .globe-icon {
-      width: 0.82rem;
-      height: 0.82rem;
+      width: 0.92rem;
+      height: 0.92rem;
       flex-shrink: 0;
       overflow: visible;
     }
     .user-region {
-      color: var(--dim);
-      opacity: 0.7;
+      color: var(--red-light);
+      opacity: 0.85;
     }
     /* When music bar is up: moves to top-right */
     .clock.at-top {
@@ -136,10 +137,10 @@
       bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.6rem;
+      font-size: 0.72rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: var(--red-light);
       white-space: nowrap;
       pointer-events: none;
       opacity: 0;
@@ -172,10 +173,10 @@
     .music-bar.shown { transform: translateY(0); }
 
     .mb-label {
-      font-size: 0.6rem;
+      font-size: 0.72rem;
       letter-spacing: 0.11em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: var(--red-light);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -195,7 +196,7 @@
       border: none;
       padding: 0.35rem;
       cursor: pointer;
-      color: var(--dim);
+      color: var(--red-light);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -210,8 +211,8 @@
     .mb-btn:focus-visible { outline: 1px solid var(--red); outline-offset: 2px; }
     .mb-btn.on  { color: var(--red); }
     .mb-btn svg {
-      width: 0.85rem;
-      height: 0.85rem;
+      width: 1rem;
+      height: 1rem;
       stroke: currentColor;
       fill: none;
       stroke-width: 1.75;
@@ -253,17 +254,17 @@
       display: flex;
       align-items: flex-start;
       gap: 0.55rem;
-      color: var(--dim);
-      font-size: clamp(0.8rem, 3.2vw, 0.9rem);
+      color: var(--red-light);
+      font-size: clamp(0.88rem, 3.4vw, 1rem);
       font-weight: 400;
       letter-spacing: 0.04em;
       flex-wrap: wrap;
     }
 
     .contact svg {
-      width: 0.9rem;
-      height: 0.9rem;
-      stroke: var(--red-dim);
+      width: 1rem;
+      height: 1rem;
+      stroke: var(--red-light);
       fill: none;
       stroke-width: 1.75;
       stroke-linecap: round;
@@ -280,12 +281,12 @@
 
     .contact a {
       font-family: "Cinzel", "Times New Roman", Times, serif;
-      font-size: clamp(0.82rem, 3vw, 0.92rem);
+      font-size: clamp(0.88rem, 3.2vw, 1rem);
       font-weight: 600;
       letter-spacing: 0.06em;
-      color: var(--ink);
+      color: var(--red-light);
       text-decoration: none;
-      border-bottom: 1px solid rgba(16, 13, 13, 0.15);
+      border-bottom: 1px solid rgba(217, 96, 96, 0.3);
       padding-bottom: 1px;
       transition: color 0.18s ease, border-color 0.18s ease;
       word-break: break-all;
