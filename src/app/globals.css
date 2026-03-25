@@ -1,14 +1,3 @@
-/* ─── GOOGLE FONTS ──────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-
-/* ─── CUSTOM FONTS ──────────────────────────────── */
-@font-face {
-  font-family: "Ahsing";
-  src: url("/Font/ahsing-font/typogama-ahsing.otf") format("opentype");
-  font-style: normal;
-  font-weight: 400;
-}
-
 /* ─── TOKENS ──────────────────────────────────────── */
 :root {
   --red: #ff0033;
@@ -18,9 +7,9 @@
   --charcoal: #1a1a1a;
   --muted: #888;
   --line: #e8e8e8;
-  --f-display: "Bebas Neue", sans-serif;
-  --f-brand: "Ahsing", sans-serif;
-  --f-body: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --f-display: var(--f-site), sans-serif;
+  --f-brand: var(--f-site), sans-serif;
+  --f-body: var(--f-site), sans-serif;
 }
 
 /* ─── RESET ───────────────────────────────────────── */

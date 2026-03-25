@@ -4,9 +4,9 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const ahsing = localFont({
-  src: "../../public/Font/ahsing-font/typogama-ahsing.otf",
-  variable: "--f-brand",
+const siteFont = localFont({
+  src: "../../fonts/populaz-display-font/populaz.otf",
+  variable: "--f-site",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={ahsing.variable}>
+    <html lang="en" className={siteFont.variable}>
       <body>
         <div className="app-frame">
           <Navbar />
