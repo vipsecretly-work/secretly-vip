@@ -177,22 +177,63 @@ img {
   border-radius: 1px;
 }
 
-.nav-drawer {
-  display: none;
-  flex-direction: column;
-  background: var(--white);
-  border-bottom: 1px solid var(--line);
-  padding: 8px 24px 16px;
+/* ─── MOBILE BOTTOM TAB BAR ───────────────────────── */
+.mobile-tab-bar {
+  display: none; /* visible only on mobile via media query */
 }
 
-.nav-drawer.open {
+.mobile-tab {
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 6px 8px;
+  color: #aaa;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-body);
+  position: relative;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.nav-drawer .nav-link {
-  font-size: 14px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
+.mobile-tab.active {
+  color: var(--red);
+}
+
+.mobile-tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.mobile-tab.active .mobile-tab-icon {
+  background: rgba(255, 0, 51, 0.08);
+}
+
+.mobile-tab-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.mobile-tab-dot {
+  position: absolute;
+  top: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--red);
 }
 
 /* ─── INTERACTIVE HERO ────────────────────────────── */
@@ -1281,7 +1322,7 @@ img {
     border-radius: 24px;
   }
 
-  /* ── Navbar ── */
+  /* ── Navbar (top bar) ── */
   .navbar {
     padding: 0 16px;
     height: 50px;
@@ -1290,14 +1331,35 @@ img {
   .nav-links {
     display: none;
   }
-  .nav-hamburger {
+  /* search icon stays visible in top bar on mobile */
+  .nav-actions .nav-icon {
     display: flex;
   }
-  .nav-actions .nav-icon {
-    display: none;
+
+  /* ── Mobile bottom tab bar ── */
+  .mobile-tab-bar {
+    display: flex;
+    position: fixed;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    z-index: 200;
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.14),
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.04) inset;
+    border-radius: 22px;
+    padding: 0 4px;
+    align-items: stretch;
   }
-  .nav-drawer {
-    margin: 0 8px;
+
+  /* push page content above the tab bar */
+  .app-frame {
+    padding-bottom: 88px;
   }
 
   /* ── Hero ── */
