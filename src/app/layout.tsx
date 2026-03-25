@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -12,6 +12,13 @@ const ahsing = localFont({
 export const metadata: Metadata = {
   title: "SECRETLY",
   description: "Secretly",
+};
+
+/* Enables env(safe-area-inset-*) for fixed bottom nav on iOS / notched devices */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

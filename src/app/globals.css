@@ -1339,26 +1339,28 @@ img {
     display: flex;
   }
 
-  /* ── Mobile bottom tab bar — brand: stark black, red active ── */
+  /* ── Mobile bottom tab bar — brand black + glass; respects iOS safe area ── */
   .mobile-tab-bar {
     display: flex;
     position: fixed;
-    bottom: 8px;
-    left: 8px;
-    right: 8px;
+    /* Never sit under home indicator or Safari bottom chrome */
+    bottom: max(12px, calc(8px + env(safe-area-inset-bottom, 0px)));
+    left: max(8px, env(safe-area-inset-left, 0px));
+    right: max(8px, env(safe-area-inset-right, 0px));
     z-index: 200;
-    background: rgba(17, 17, 17, 0.96);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    backdrop-filter: blur(20px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(17, 17, 17, 0.82);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    padding: 0 4px;
+    padding: 6px 4px 8px;
     align-items: stretch;
+    box-shadow: 0 -2px 40px rgba(0, 0, 0, 0.35);
   }
 
-  /* push page content above the tab bar */
+  /* Room for tab bar + safe area (tab ~64px + margin) */
   .app-frame {
-    padding-bottom: 88px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   }
 
   /* ── Hero ── */
@@ -1369,10 +1371,10 @@ img {
     padding-left: max(5vw, 20px);
   }
 
-  /* Globe badge: visible on mobile, repositioned above the tab bar */
+  /* Globe badge: above tab bar + safe area */
   .hero-globe-badge {
     display: flex;
-    bottom: 120px !important; /* above the tab bar */
+    bottom: calc(132px + env(safe-area-inset-bottom, 0px)) !important;
     left: 16px !important;
     gap: 10px !important;
   }
