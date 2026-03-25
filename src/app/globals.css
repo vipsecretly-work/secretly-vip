@@ -188,16 +188,16 @@ img {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 10px 6px 8px;
-  color: #aaa;
+  gap: 4px;
+  padding: 10px 4px 10px;
+  color: rgba(255, 255, 255, 0.38);
   text-decoration: none;
   background: none;
   border: none;
   cursor: pointer;
   font-family: var(--f-body);
   position: relative;
-  transition: color 0.2s;
+  transition: color 0.18s;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -205,35 +205,38 @@ img {
   color: var(--red);
 }
 
+/* Red top-edge marker on the active tab */
+.mobile-tab.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: var(--red);
+  border-radius: 0 0 2px 2px;
+}
+
 .mobile-tab-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  transition: background 0.2s;
-}
-
-.mobile-tab.active .mobile-tab-icon {
-  background: rgba(255, 0, 51, 0.08);
+  width: 32px;
+  height: 32px;
 }
 
 .mobile-tab-label {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
 }
 
+/* dot not needed — using the top bar instead */
 .mobile-tab-dot {
-  position: absolute;
-  top: 6px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--red);
+  display: none;
 }
 
 /* ─── INTERACTIVE HERO ────────────────────────────── */
@@ -1336,7 +1339,7 @@ img {
     display: flex;
   }
 
-  /* ── Mobile bottom tab bar ── */
+  /* ── Mobile bottom tab bar — brand: stark black, red active ── */
   .mobile-tab-bar {
     display: flex;
     position: fixed;
@@ -1344,15 +1347,11 @@ img {
     left: 8px;
     right: 8px;
     z-index: 200;
-    background: rgba(255, 255, 255, 0.82);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow:
-      0 8px 40px rgba(0, 0, 0, 0.14),
-      0 1px 0 rgba(255, 255, 255, 0.9) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.04) inset;
-    border-radius: 22px;
+    background: rgba(17, 17, 17, 0.96);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
     padding: 0 4px;
     align-items: stretch;
   }
@@ -1369,8 +1368,17 @@ img {
     border-radius: 20px 20px 16px 16px;
     padding-left: max(5vw, 20px);
   }
+
+  /* Globe badge: visible on mobile, repositioned above the tab bar */
   .hero-globe-badge {
-    display: none; /* avoid overlap on small screens */
+    display: flex;
+    bottom: 120px !important; /* above the tab bar */
+    left: 16px !important;
+    gap: 10px !important;
+  }
+  .hero-globe-badge svg {
+    width: 34px !important;
+    height: 34px !important;
   }
 
   /* ── Hero split carousel ── */
