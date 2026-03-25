@@ -14,9 +14,10 @@ export default function Template({ children }: { children: React.ReactNode }) {
         animate={{ opacity: 0 }}
         transition={{ duration: 0.6, ease: "easeOut", delay: 0.8 }}
         style={{
-          position: "fixed",
-          inset: "16px",
-          borderRadius: "40px",
+          /* Cover the app frame itself; avoids refresh bleed on mobile */
+          position: "absolute",
+          inset: 0,
+          borderRadius: "inherit",
           background: "var(--white)",
           zIndex: 9999,
           display: "flex",
