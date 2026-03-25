@@ -202,6 +202,99 @@ img {
   margin-top: -64px;
 }
 
+.hero-scenery {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-mountain {
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  border-radius: 42% 58% 0 0 / 56% 54% 0 0;
+  filter: blur(0.2px);
+}
+
+.hero-mountain-back {
+  bottom: -34%;
+  height: 54%;
+  background: linear-gradient(180deg, rgba(255, 0, 51, 0.12) 0%, rgba(255, 0, 51, 0.07) 65%, rgba(255, 0, 51, 0.02) 100%);
+  transform: translate3d(calc(var(--px, 0px) * -0.3), calc(var(--py, 0px) * -0.2), 0);
+}
+
+.hero-mountain-mid {
+  bottom: -29%;
+  height: 48%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.74) 62%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow: 0 -30px 90px rgba(255, 255, 255, 0.65);
+  transform: translate3d(calc(var(--px, 0px) * -0.55), calc(var(--py, 0px) * -0.35), 0);
+}
+
+.hero-cloud {
+  position: absolute;
+  height: 42px;
+  border-radius: 999px;
+  background: rgba(255, 0, 51, 0.08);
+  filter: blur(0.3px);
+}
+
+.hero-cloud span {
+  position: absolute;
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 0, 51, 0.08);
+}
+
+.hero-cloud-1 {
+  width: 94px;
+  top: 17%;
+  left: 9%;
+  transform: translate3d(calc(var(--px, 0px) * -0.15), calc(var(--py, 0px) * -0.12), 0);
+  animation: cloudDriftA 14s ease-in-out infinite alternate;
+}
+.hero-cloud-1 span:first-child { left: 18px; top: -10px; }
+.hero-cloud-1 span:last-child  { right: 16px; top: -8px; }
+
+.hero-cloud-2 {
+  width: 124px;
+  top: 24%;
+  right: 12%;
+  transform: translate3d(calc(var(--px, 0px) * -0.22), calc(var(--py, 0px) * -0.17), 0);
+  animation: cloudDriftB 18s ease-in-out infinite alternate;
+}
+.hero-cloud-2 span:first-child { left: 22px; top: -12px; }
+.hero-cloud-2 span:last-child  { right: 18px; top: -10px; }
+
+.hero-cloud-3 {
+  width: 78px;
+  top: 35%;
+  left: 28%;
+  transform: translate3d(calc(var(--px, 0px) * -0.18), calc(var(--py, 0px) * -0.14), 0);
+  animation: cloudDriftC 16s ease-in-out infinite alternate;
+}
+.hero-cloud-3 span:first-child { left: 14px; top: -10px; }
+.hero-cloud-3 span:last-child  { right: 10px; top: -8px; }
+
+@keyframes cloudDriftA {
+  from { margin-left: -10px; opacity: 0.5; }
+  to   { margin-left: 18px; opacity: 0.8; }
+}
+
+@keyframes cloudDriftB {
+  from { margin-right: -8px; opacity: 0.45; }
+  to   { margin-right: 14px; opacity: 0.75; }
+}
+
+@keyframes cloudDriftC {
+  from { margin-left: 0; opacity: 0.35; }
+  to   { margin-left: 16px; opacity: 0.65; }
+}
+
 /* Globe badge — display: flex here so media query can override to none */
 .hero-globe-badge {
   display: flex;

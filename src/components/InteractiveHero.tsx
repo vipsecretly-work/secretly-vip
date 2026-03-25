@@ -179,12 +179,35 @@ export default function InteractiveHero() {
     }
   }, []);
 
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = ((e.clientX - cx) / rect.width) * 40;
+    const dy = ((e.clientY - cy) / rect.height) * 24;
+    el.style.setProperty("--px", `${dx.toFixed(2)}px`);
+    el.style.setProperty("--py", `${dy.toFixed(2)}px`);
+  }, []);
+
+  const handlePointerLeave = useCallback(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    el.style.setProperty("--px", "0px");
+    el.style.setProperty("--py", "0px");
+  }, []);
+
   return (
     <div
       ref={sectionRef}
       onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       className="interactive-hero-wrap"
       style={{
+        "--px": "0px",
+        "--py": "0px",
         width: "100%",
         /* height and marginTop are in .interactive-hero-wrap CSS (responsive via media queries) */
         position: "relative",
@@ -197,8 +220,17 @@ export default function InteractiveHero() {
         borderRadius: "40px 40px 24px 24px",
         cursor: "crosshair",
         touchAction: "pan-y", /* allow vertical scroll; pointerDown still fires for burst effect */
-      }}
+      } as React.CSSProperties}
     >
+      {/* Red/white mountain + cloud parallax backdrop */}
+      <div className="hero-scenery" aria-hidden="true">
+        <div className="hero-mountain hero-mountain-back" />
+        <div className="hero-mountain hero-mountain-mid" />
+        <div className="hero-cloud hero-cloud-1"><span /><span /></div>
+        <div className="hero-cloud hero-cloud-2"><span /><span /></div>
+        <div className="hero-cloud hero-cloud-3"><span /><span /></div>
+      </div>
+
       {/* Single canvas for all particles — one GPU layer */}
       <canvas
         ref={canvasRef}
