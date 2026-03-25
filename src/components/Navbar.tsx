@@ -155,57 +155,13 @@ function SearchOverlay({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Mobile glass navigation ───────────────────────────────────────
-const MOBILE_SEGMENTS = [
-  { href: "/",         label: "Home" },
-  { href: "/products", label: "Products" },
-  { href: "/contact",  label: "Contact" },
-];
-
-const MOBILE_TABS = [
+// ── Mobile top icons ──────────────────────────────────────────────
+const MOBILE_TOP_ICONS = [
   { href: "/",         label: "Home",     Icon: Home },
   { href: "/products", label: "Products", Icon: ShoppingBag },
   { href: "/custom",   label: "Custom",   Icon: Wand2 },
   { href: "/contact",  label: "Contact",  Icon: Mail },
 ];
-
-function MobileTabBar() {
-  const pathname = usePathname();
-
-  const isActive = (href: string) =>
-    pathname === href || (href !== "/" && pathname.startsWith(href));
-
-  return (
-    <nav className="mobile-tab-bar" aria-label="Mobile navigation">
-      <div className="mobile-nav-shell">
-        <div className="mobile-segment-row">
-          {MOBILE_SEGMENTS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`mobile-segment${isActive(href) ? " active" : ""}`}
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
-
-        <div className="mobile-icon-row">
-          {MOBILE_TABS.map(({ href, label, Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`mobile-icon-tab${isActive(href) ? " active" : ""}`}
-            >
-              <Icon size={20} strokeWidth={isActive(href) ? 2 : 1.7} />
-              <span>{label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </nav>
-  );
-}
 
 // ── Desktop Navbar ────────────────────────────────────────────────
 export default function Navbar() {
@@ -276,10 +232,27 @@ export default function Navbar() {
             <Search size={15} stroke="#fff" strokeWidth={2} />
           </button>
         </div>
-      </nav>
 
-      {/* ── Mobile glass navigation ── */}
-      <MobileTabBar />
+        {/* Minimal mobile top icons — no borders/backgrounds */}
+        <div className="mobile-top-icons" aria-label="Mobile quick navigation">
+          {MOBILE_TOP_ICONS.map(({ href, label, Icon }) => {
+            const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`mobile-top-icon${isActive ? " active" : ""}`}
+                aria-label={label}
+              >
+                <Icon size={15} strokeWidth={isActive ? 2.2 : 1.9} />
+              </Link>
+            );
+          })}
+          <button className="mobile-top-icon" onClick={openSearch} aria-label="Search">
+            <Search size={15} strokeWidth={1.9} />
+          </button>
+        </div>
+      </nav>
 
       {searchOpen && <SearchOverlay onClose={closeSearch} />}
     </>
