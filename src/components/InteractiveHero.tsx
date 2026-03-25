@@ -238,79 +238,114 @@ export default function InteractiveHero() {
         touchAction: "pan-y", /* allow vertical scroll; pointerDown still fires for burst effect */
       } as React.CSSProperties}
     >
-      {/* Rising/setting sun over mountains — pure SVG, no DOM weight */}
+      {/* Rising/setting sun over mountains — smooth bezier silhouettes */}
       <svg
         className="hero-scenery-svg"
         aria-hidden="true"
-        viewBox="0 0 1200 480"
+        viewBox="0 0 1200 520"
         preserveAspectRatio="xMidYMax meet"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Sky gradient that shifts warm→cool→warm with the sun */}
           <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="#ff0033" stopOpacity="0.55" />
-            <stop offset="55%"  stopColor="#ff6644" stopOpacity="0.18" />
+            <stop offset="0%"   stopColor="#ff0033" stopOpacity="0.6" />
+            <stop offset="40%"  stopColor="#ff4455" stopOpacity="0.22" />
             <stop offset="100%" stopColor="#ffffff"  stopOpacity="0" />
           </radialGradient>
-          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#fff0f2" stopOpacity="0.9" />
+          <radialGradient id="horizonBlush" cx="50%" cy="100%" r="60%">
+            <stop offset="0%"   stopColor="#ffccd5" stopOpacity="0.7" />
             <stop offset="100%" stopColor="#ffffff"  stopOpacity="0" />
-          </linearGradient>
-          {/* Mountain fills */}
+          </radialGradient>
           <linearGradient id="mtBack" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#ffccd5" />
-            <stop offset="100%" stopColor="#ffe8ec" />
+            <stop offset="0%"   stopColor="#ffb3c0" />
+            <stop offset="100%" stopColor="#ffd6de" />
           </linearGradient>
           <linearGradient id="mtMid" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#ffffff" />
-            <stop offset="100%" stopColor="#fff5f6" />
+            <stop offset="0%"   stopColor="#ffe0e6" />
+            <stop offset="100%" stopColor="#fff0f3" />
           </linearGradient>
           <linearGradient id="mtFront" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#fff8f9" />
+            <stop offset="0%"   stopColor="#ffffff" />
             <stop offset="100%" stopColor="#ffffff" />
           </linearGradient>
         </defs>
 
-        {/* Sky wash */}
-        <rect x="0" y="0" width="1200" height="480" fill="url(#skyGrad)" />
+        {/* Horizon blush behind sun */}
+        <ellipse cx="600" cy="520" rx="500" ry="320" fill="url(#horizonBlush)" />
 
-        {/* Sun glow halo — animates up then back down */}
-        <ellipse className="hero-sun-glow" cx="600" cy="320" rx="180" ry="180" fill="url(#sunGlow)" />
+        {/* Sun glow halo */}
+        <ellipse className="hero-sun-glow" cx="600" cy="420" rx="200" ry="200" fill="url(#sunGlow)" />
 
-        {/* Sun disc */}
-        <circle className="hero-sun" cx="600" cy="340" r="52" fill="#ff0033" opacity="0.82" />
-        {/* Subtle rays */}
-        <g className="hero-sun-rays" strokeWidth="2" stroke="#ff0033" strokeOpacity="0.25">
-          <line x1="600" y1="268" x2="600" y2="248" />
-          <line x1="600" y1="412" x2="600" y2="432" />
-          <line x1="528" y1="340" x2="508" y2="340" />
-          <line x1="672" y1="340" x2="692" y2="340" />
-          <line x1="549" y1="289" x2="535" y2="275" />
-          <line x1="651" y1="391" x2="665" y2="405" />
-          <line x1="651" y1="289" x2="665" y2="275" />
-          <line x1="549" y1="391" x2="535" y2="405" />
+        {/* Sun disc — large and bold */}
+        <circle className="hero-sun" cx="600" cy="430" r="72" fill="#ff0033" opacity="0.88" />
+
+        {/* Subtle radial rays */}
+        <g className="hero-sun-rays" stroke="#ff0033" strokeOpacity="0.18" strokeLinecap="round">
+          <line x1="600" y1="344" x2="600" y2="316" strokeWidth="3"/>
+          <line x1="600" y1="516" x2="600" y2="544" strokeWidth="3"/>
+          <line x1="514" y1="430" x2="486" y2="430" strokeWidth="3"/>
+          <line x1="686" y1="430" x2="714" y2="430" strokeWidth="3"/>
+          <line x1="539" y1="369" x2="520" y2="350" strokeWidth="2.5"/>
+          <line x1="661" y1="491" x2="680" y2="510" strokeWidth="2.5"/>
+          <line x1="661" y1="369" x2="680" y2="350" strokeWidth="2.5"/>
+          <line x1="539" y1="491" x2="520" y2="510" strokeWidth="2.5"/>
         </g>
 
-        {/* Back mountain range */}
+        {/* Back mountain range — smooth bezier peaks */}
         <path
           fill="url(#mtBack)"
-          opacity="0.72"
-          d="M0,480 L0,290 L120,210 L240,260 L360,170 L480,240 L600,160 L720,240 L840,185 L960,250 L1080,210 L1200,270 L1200,480 Z"
+          opacity="0.75"
+          d="
+            M0,520 L0,290
+            Q80,240 160,170
+            Q220,115 280,175
+            Q340,240 380,240
+            Q430,215 480,120
+            Q530,215 580,225
+            Q615,210 660,130
+            Q700,215 750,230
+            Q800,215 860,140
+            Q920,215 970,235
+            Q1010,220 1060,165
+            Q1110,220 1200,260
+            L1200,520 Z
+          "
         />
 
         {/* Mid mountain range */}
         <path
           fill="url(#mtMid)"
-          opacity="0.88"
-          d="M0,480 L0,330 L150,270 L300,320 L450,240 L600,300 L750,250 L900,310 L1050,265 L1200,310 L1200,480 Z"
+          opacity="0.90"
+          d="
+            M0,520 L0,350
+            Q60,325 120,310
+            Q195,285 270,210
+            Q340,285 400,300
+            Q460,280 530,215
+            Q595,280 650,295
+            Q710,275 780,210
+            Q845,275 910,295
+            Q970,280 1040,230
+            Q1110,280 1200,310
+            L1200,520 Z
+          "
         />
 
-        {/* Front mountain/hill — almost white, clips the sun at bottom */}
+        {/* Front rolling hills — white, clips sun base */}
         <path
           fill="url(#mtFront)"
           opacity="1"
-          d="M0,480 L0,390 L200,340 L400,380 L550,320 L700,370 L900,330 L1100,370 L1200,350 L1200,480 Z"
+          d="
+            M0,520 L0,420
+            Q100,390 200,400
+            Q300,415 380,375
+            Q460,360 540,365
+            Q620,370 700,360
+            Q800,348 900,368
+            Q1000,385 1100,375
+            Q1150,370 1200,365
+            L1200,520 Z
+          "
         />
       </svg>
 

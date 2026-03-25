@@ -223,30 +223,30 @@ img {
   .hero-sun, .hero-sun-glow, .hero-sun-rays { animation: none !important; }
 }
 
-/* Sun arc: rises from below the front hill, peaks above mid-mountains, sets again */
-.hero-sun {
-  animation: sunRise 12s ease-in-out infinite;
-  transform-origin: 600px 480px; /* pivot at base-centre */
-}
-
-.hero-sun-glow {
-  animation: sunRise 12s ease-in-out infinite;
-  transform-origin: 600px 480px;
-}
-
+/* Sun, glow, and rays all share the same rise/set arc */
+.hero-sun,
+.hero-sun-glow,
 .hero-sun-rays {
-  animation: sunRise 12s ease-in-out infinite;
-  transform-origin: 600px 480px;
+  animation: sunRise 14s ease-in-out infinite;
+  /* pivot at horizon centre — creates a natural arc */
+  transform-box: fill-box;
+  transform-origin: center bottom;
 }
 
 @keyframes sunRise {
-  0%   { transform: translateY(160px);  opacity: 0;    }
-  12%  { transform: translateY(80px);   opacity: 0.55; }
-  35%  { transform: translateY(0px);    opacity: 0.9;  }
-  50%  { transform: translateY(-24px);  opacity: 1;    }
-  65%  { transform: translateY(0px);    opacity: 0.9;  }
-  88%  { transform: translateY(80px);   opacity: 0.55; }
-  100% { transform: translateY(160px);  opacity: 0;    }
+  /*  Hidden behind front hills  */
+  0%   { transform: translateY(200px);  opacity: 0;   }
+  /*  Peeking over horizon       */
+  10%  { transform: translateY(120px);  opacity: 0.4; }
+  /*  Fully risen                */
+  35%  { transform: translateY(0px);    opacity: 1;   }
+  /*  Peak — slight pause at top */
+  50%  { transform: translateY(-36px);  opacity: 1;   }
+  /*  Descending                 */
+  65%  { transform: translateY(0px);    opacity: 1;   }
+  /*  Setting                    */
+  90%  { transform: translateY(120px);  opacity: 0.4; }
+  100% { transform: translateY(200px);  opacity: 0;   }
 }
 
 /* Globe badge — display: flex here so media query can override to none */
