@@ -155,7 +155,13 @@ function SearchOverlay({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Mobile bottom tab bar ─────────────────────────────────────────
+// ── Mobile glass navigation ───────────────────────────────────────
+const MOBILE_SEGMENTS = [
+  { href: "/",         label: "Home" },
+  { href: "/products", label: "Products" },
+  { href: "/contact",  label: "Contact" },
+];
+
 const MOBILE_TABS = [
   { href: "/",         label: "Home",     Icon: Home },
   { href: "/products", label: "Products", Icon: ShoppingBag },
@@ -163,30 +169,40 @@ const MOBILE_TABS = [
   { href: "/contact",  label: "Contact",  Icon: Mail },
 ];
 
-function MobileTabBar({ onSearch }: { onSearch: () => void }) {
+function MobileTabBar() {
   const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    pathname === href || (href !== "/" && pathname.startsWith(href));
 
   return (
     <nav className="mobile-tab-bar" aria-label="Mobile navigation">
-      {MOBILE_TABS.map(({ href, label, Icon }) => {
-        const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
-        return (
-          <Link key={href} href={href} className={`mobile-tab${isActive ? " active" : ""}`}>
-            <span className="mobile-tab-icon">
-              <Icon size={22} strokeWidth={isActive ? 2 : 1.5} />
-            </span>
-            <span className="mobile-tab-label">{label}</span>
-            {isActive && <span className="mobile-tab-dot" />}
-          </Link>
-        );
-      })}
-      {/* Search tab */}
-      <button className="mobile-tab" onClick={onSearch} aria-label="Search">
-        <span className="mobile-tab-icon">
-          <Search size={22} strokeWidth={1.5} />
-        </span>
-        <span className="mobile-tab-label">Search</span>
-      </button>
+      <div className="mobile-nav-shell">
+        <div className="mobile-segment-row">
+          {MOBILE_SEGMENTS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`mobile-segment${isActive(href) ? " active" : ""}`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mobile-icon-row">
+          {MOBILE_TABS.map(({ href, label, Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`mobile-icon-tab${isActive(href) ? " active" : ""}`}
+            >
+              <Icon size={20} strokeWidth={isActive(href) ? 2 : 1.7} />
+              <span>{label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
     </nav>
   );
 }
@@ -262,8 +278,8 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ── Mobile glassy bottom tab bar ── */}
-      <MobileTabBar onSearch={openSearch} />
+      {/* ── Mobile glass navigation ── */}
+      <MobileTabBar />
 
       {searchOpen && <SearchOverlay onClose={closeSearch} />}
     </>
