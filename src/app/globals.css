@@ -1365,6 +1365,12 @@ img {
 }
 
 @media (max-width: 640px) {
+  /* Mobile typography override: stitched font is too noisy on small screens */
+  :root {
+    --f-display: var(--f-readable), sans-serif;
+    --f-brand: var(--f-readable), sans-serif;
+  }
+
   /* ── Frame ── */
   body {
     padding: 8px; /* narrower red border on mobile = more content width */
@@ -1385,6 +1391,11 @@ img {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     overflow: hidden;
     isolation: isolate;
+  }
+  .nav-logo {
+    font-family: var(--f-body);
+    letter-spacing: 0.08em;
+    font-size: 14px;
   }
   .nav-links {
     display: none;
