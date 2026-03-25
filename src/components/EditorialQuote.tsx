@@ -46,16 +46,18 @@ export default function EditorialQuote() {
   const current = QUOTES[index];
 
   return (
-    <section style={{
-      padding: "160px 40px",
-      background: "var(--white)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      borderTop: "1px solid rgba(0,0,0,0.05)",
-      borderBottom: "1px solid rgba(0,0,0,0.05)",
-      minHeight: "700px" // Prevents layout shift since we format consistently with 4 lines
-    }}>
+    <section
+      className="editorial-quote-section"
+      style={{
+        /* padding and min-height live in .editorial-quote-section (overridable via media queries) */
+        background: "var(--white)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        borderTop: "1px solid rgba(0,0,0,0.05)",
+        borderBottom: "1px solid rgba(0,0,0,0.05)",
+      }}
+    >
       <div style={{ maxWidth: "1200px", textAlign: "center", position: "relative", width: "100%" }}>
         <AnimatePresence mode="wait">
           <motion.div

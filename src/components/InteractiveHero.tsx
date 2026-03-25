@@ -183,10 +183,10 @@ export default function InteractiveHero() {
     <div
       ref={sectionRef}
       onPointerDown={handlePointerDown}
+      className="interactive-hero-wrap"
       style={{
         width: "100%",
-        height: "calc(100vh - 32px)",
-        marginTop: "-64px",
+        /* height and marginTop are in .interactive-hero-wrap CSS (responsive via media queries) */
         position: "relative",
         overflow: "hidden",
         display: "flex",
@@ -210,8 +210,8 @@ export default function InteractiveHero() {
         }}
       />
 
-      {/* LIVE AROUND THE WORLD globe badge */}
-      <div style={{ position: "absolute", left: "6vw", bottom: "8vh", display: "flex", alignItems: "center", gap: "16px", zIndex: 5, pointerEvents: "none" }}>
+      {/* LIVE AROUND THE WORLD globe badge — hidden on mobile via .hero-globe-badge */}
+      <div className="hero-globe-badge" style={{ position: "absolute", left: "6vw", bottom: "8vh", display: "flex", alignItems: "center", gap: "16px", zIndex: 5, pointerEvents: "none" }}>
         {/* SVG Globe outline */}
         <motion.svg
           width="48" height="48" viewBox="0 0 48 48" fill="none"
@@ -238,7 +238,7 @@ export default function InteractiveHero() {
           transition={{ duration: 1.2, ease: "easeOut" }}
           style={{
             fontFamily: "var(--f-brand)",
-            fontSize: "clamp(64px, 15vw, 240px)",
+            fontSize: "clamp(44px, 14vw, 240px)",
             lineHeight: 0.85,
             color: "var(--red)",
             margin: 0,

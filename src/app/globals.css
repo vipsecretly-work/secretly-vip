@@ -45,6 +45,7 @@ body {
   padding: 16px;
   margin: 0;
   height: 100vh;
+  height: 100dvh; /* dynamic — adjusts when mobile browser chrome appears/hides */
   box-sizing: border-box;
 }
 
@@ -56,6 +57,7 @@ body {
   overflow-x: hidden;
   position: relative;
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* smooth momentum scrolling on iOS */
 }
 
 a {
@@ -190,6 +192,20 @@ img {
   font-size: 14px;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
+}
+
+/* ─── INTERACTIVE HERO ────────────────────────────── */
+/* Height and negative margin extracted from inline style so media queries can override them */
+.interactive-hero-wrap {
+  height: calc(100vh - 32px);
+  height: calc(100dvh - 32px);
+  margin-top: -64px;
+}
+
+/* ─── EDITORIAL QUOTE ─────────────────────────────── */
+.editorial-quote-section {
+  padding: 160px 40px;
+  min-height: 700px;
 }
 
 /* ─── SEARCH OVERLAY INTERFACE ────────────────────── */
@@ -1252,114 +1268,162 @@ img {
 }
 
 @media (max-width: 640px) {
-  .navbar {
-    padding: 0 20px;
-    height: 50px;
+  /* ── Frame ── */
+  body {
+    padding: 8px; /* narrower red border on mobile = more content width */
+  }
+  .app-frame {
+    border-radius: 24px;
   }
 
+  /* ── Navbar ── */
+  .navbar {
+    padding: 0 16px;
+    height: 50px;
+    margin: 8px;
+  }
   .nav-links {
     display: none;
   }
-
   .nav-hamburger {
     display: flex;
   }
-
   .nav-actions .nav-icon {
     display: none;
   }
-
-  .brand-hero {
-    min-height: 60vh;
-    padding: 48px 24px 40px;
+  .nav-drawer {
+    margin: 0 8px;
   }
 
+  /* ── Hero ── */
+  .interactive-hero-wrap {
+    height: calc(100dvh - 16px); /* 8px body padding × 2 */
+    margin-top: -50px;           /* mobile nav is 50px tall */
+    border-radius: 20px 20px 16px 16px;
+    padding-left: max(5vw, 20px);
+  }
+  .hero-globe-badge {
+    display: none; /* avoid overlap on small screens */
+  }
+
+  /* ── Hero split carousel ── */
+  .brand-hero {
+    min-height: 60vh;
+    padding: 48px 20px 40px;
+  }
   .brand-hero-name {
     letter-spacing: 0.01em;
   }
-
   .hero-panel {
-    padding: 28px 24px;
-    min-height: 240px;
+    padding: 24px 20px;
+    min-height: 220px;
   }
-
   .hero-panel-art svg {
-    width: 110px;
-    height: 110px;
+    width: 100px;
+    height: 100px;
+  }
+  .hero-panel-title {
+    font-size: clamp(22px, 6vw, 32px);
   }
 
+  /* ── Editorial quote ── */
+  .editorial-quote-section {
+    padding: 60px 20px;
+    min-height: 0;
+  }
+
+  /* ── Our Pieces ── */
   .our-pieces-header {
-    padding: 36px 24px 22px;
+    padding: 28px 20px 18px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
-
   .pieces-row {
     grid-template-columns: repeat(2, 1fr);
+    padding: 12px;
+    gap: 12px;
   }
-
   .pieces-icons {
     grid-template-columns: repeat(4, 1fr);
   }
 
+  /* ── Editorial block ── */
   .editorial-text {
-    padding: 36px 24px;
+    padding: 32px 20px;
   }
-
   .editorial-mini-grid {
     grid-template-columns: 1fr 1fr;
   }
-
   .brand-statement {
-    padding: 48px 24px;
+    padding: 40px 20px;
   }
 
+  /* ── Product pages ── */
   .product-info {
-    padding: 32px 24px;
+    padding: 28px 20px;
   }
-
   .product-visual {
-    padding: 40px;
+    padding: 36px;
   }
-
   .product-editorial-col {
-    padding: 28px 24px;
+    padding: 24px 20px;
   }
 
+  /* ── Inner page hero ── */
   .page-hero {
-    padding: 36px 24px 28px;
+    padding: 28px 20px 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .page-hero-meta {
+    text-align: left;
   }
 
+  /* ── Footer ── */
   .footer-top {
     grid-template-columns: 1fr;
   }
-
   .footer-brand {
     border-right: none;
-    padding: 36px 24px;
-    gap: 24px;
+    padding: 32px 20px;
+    gap: 20px;
   }
-
   .footer-col {
     border-right: none;
     border-top: 1px solid var(--line);
-    padding: 28px 24px;
+    padding: 24px 20px;
   }
-
   .footer-bottom {
-    padding: 14px 24px;
+    padding: 12px 20px;
   }
-
   .footer-wordmark {
-    font-size: clamp(64px, 18vw, 120px);
-    padding: 0 12px 16px;
+    font-size: clamp(56px, 16vw, 120px);
+    padding: 0 10px 14px;
   }
 }
 
 @media (max-width: 400px) {
+  body {
+    padding: 6px;
+  }
+  .app-frame {
+    border-radius: 18px;
+  }
+  .navbar {
+    margin: 6px;
+    padding: 0 14px;
+  }
+  .nav-drawer {
+    margin: 0 6px;
+  }
   .pieces-row {
     grid-template-columns: 1fr;
   }
-
   .pieces-icons {
     grid-template-columns: repeat(4, 1fr);
+  }
+  .editorial-quote-section {
+    padding: 48px 16px;
   }
 }
