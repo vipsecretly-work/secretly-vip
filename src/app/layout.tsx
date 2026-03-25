@@ -9,11 +9,6 @@ const readableFont = localFont({
   variable: "--f-readable",
 });
 
-const stitchedBrandFont = localFont({
-  src: "../../public/Font/akagi-stitched-font/csakagistitched-regular.otf",
-  variable: "--f-stitched",
-});
-
 export const metadata: Metadata = {
   title: "SECRETLY",
   description: "Secretly",
@@ -37,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${readableFont.variable} ${stitchedBrandFont.variable}`}>
+    <html lang="en" className={readableFont.variable}>
       <body>
         <div className="app-frame">
           <Navbar />
