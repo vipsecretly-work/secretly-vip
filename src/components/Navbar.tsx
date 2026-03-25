@@ -182,7 +182,7 @@ export default function Navbar() {
           Secretly®
         </Link>
 
-        <div className="nav-links" style={{ display: "flex", position: "relative", padding: "6px", background: "rgba(0,0,0,0.03)", borderRadius: "99px", alignItems: "center" }}>
+        <div className="nav-links" style={{ position: "relative", padding: "6px", background: "rgba(0,0,0,0.03)", borderRadius: "99px", alignItems: "center" }}>
           {[
             {href: "/", label: "Home"},
             {href: "/products", label: "Products"},

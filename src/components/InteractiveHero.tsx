@@ -196,7 +196,7 @@ export default function InteractiveHero() {
         background: "var(--white)",
         borderRadius: "40px 40px 24px 24px",
         cursor: "crosshair",
-        touchAction: "none",
+        touchAction: "pan-y", /* allow vertical scroll; pointerDown still fires for burst effect */
       }}
     >
       {/* Single canvas for all particles — one GPU layer */}
@@ -211,7 +211,7 @@ export default function InteractiveHero() {
       />
 
       {/* LIVE AROUND THE WORLD globe badge — hidden on mobile via .hero-globe-badge */}
-      <div className="hero-globe-badge" style={{ position: "absolute", left: "6vw", bottom: "8vh", display: "flex", alignItems: "center", gap: "16px", zIndex: 5, pointerEvents: "none" }}>
+      <div className="hero-globe-badge" style={{ position: "absolute", left: "6vw", bottom: "8vh", alignItems: "center", gap: "16px", zIndex: 5, pointerEvents: "none" }}>
         {/* SVG Globe outline */}
         <motion.svg
           width="48" height="48" viewBox="0 0 48 48" fill="none"

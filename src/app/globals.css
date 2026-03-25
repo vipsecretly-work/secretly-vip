@@ -58,6 +58,7 @@ body {
   position: relative;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch; /* smooth momentum scrolling on iOS */
+  overscroll-behavior: contain;      /* prevent scroll from leaking to body */
 }
 
 a {
@@ -195,11 +196,15 @@ img {
 }
 
 /* ─── INTERACTIVE HERO ────────────────────────────── */
-/* Height and negative margin extracted from inline style so media queries can override them */
 .interactive-hero-wrap {
   height: calc(100vh - 32px);
   height: calc(100dvh - 32px);
   margin-top: -64px;
+}
+
+/* Globe badge — display: flex here so media query can override to none */
+.hero-globe-badge {
+  display: flex;
 }
 
 /* ─── EDITORIAL QUOTE ─────────────────────────────── */
