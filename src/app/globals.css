@@ -210,6 +210,17 @@ img {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  /* Promote to its own compositor layer on desktop only */
+  will-change: auto;
+}
+
+@media (min-width: 641px) {
+  .hero-scenery-svg { will-change: transform; }
+}
+
+/* Stop all hero animations when user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-sun, .hero-sun-glow, .hero-sun-rays { animation: none !important; }
 }
 
 /* Sun arc: rises from below the front hill, peaks above mid-mountains, sets again */
