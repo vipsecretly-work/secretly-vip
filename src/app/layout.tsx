@@ -12,6 +12,11 @@ const ahsing = localFont({
 export const metadata: Metadata = {
   title: "SECRETLY",
   description: "Secretly",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 /* Enables env(safe-area-inset-*) for fixed bottom nav on iOS / notched devices */
