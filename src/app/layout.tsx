@@ -4,9 +4,14 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const siteFont = localFont({
+const readableFont = localFont({
   src: "../../public/Font/nagel-font/nagel.otf",
-  variable: "--f-site",
+  variable: "--f-readable",
+});
+
+const stitchedBrandFont = localFont({
+  src: "../../public/Font/akagi-stitched-font/csakagistitched-regular.otf",
+  variable: "--f-stitched",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={siteFont.variable}>
+    <html lang="en" className={`${readableFont.variable} ${stitchedBrandFont.variable}`}>
       <body>
         <div className="app-frame">
           <Navbar />

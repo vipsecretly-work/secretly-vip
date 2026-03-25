@@ -7,9 +7,9 @@
   --charcoal: #1a1a1a;
   --muted: #888;
   --line: #e8e8e8;
-  --f-display: var(--f-site), sans-serif;
-  --f-brand: var(--f-site), sans-serif;
-  --f-body: var(--f-site), sans-serif;
+  --f-display: var(--f-stitched), sans-serif;
+  --f-brand: var(--f-stitched), sans-serif;
+  --f-body: var(--f-readable), sans-serif;
 }
 
 /* ─── RESET ───────────────────────────────────────── */
@@ -89,7 +89,7 @@ img {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--f-body);
+  font-family: var(--f-brand);
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.12em;
