@@ -1325,7 +1325,10 @@ img {
 
   /* ── Hero ── */
   .interactive-hero-wrap {
-    height: calc(100dvh - 16px); /* 8px body padding × 2 */
+    /* Reduce first-screen emptiness on phones */
+    height: 70dvh;
+    min-height: 420px;
+    max-height: 560px;
     margin-top: 0;
     border-radius: 20px 20px 16px 16px;
     padding-left: max(5vw, 20px);
