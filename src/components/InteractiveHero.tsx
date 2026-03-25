@@ -222,14 +222,81 @@ export default function InteractiveHero() {
         touchAction: "pan-y", /* allow vertical scroll; pointerDown still fires for burst effect */
       } as React.CSSProperties}
     >
-      {/* Red/white mountain + cloud parallax backdrop */}
-      <div className="hero-scenery" aria-hidden="true">
-        <div className="hero-mountain hero-mountain-back" />
-        <div className="hero-mountain hero-mountain-mid" />
-        <div className="hero-cloud hero-cloud-1"><span /><span /></div>
-        <div className="hero-cloud hero-cloud-2"><span /><span /></div>
-        <div className="hero-cloud hero-cloud-3"><span /><span /></div>
-      </div>
+      {/* Rising/setting sun over mountains — pure SVG, no DOM weight */}
+      <svg
+        className="hero-scenery-svg"
+        aria-hidden="true"
+        viewBox="0 0 1200 480"
+        preserveAspectRatio="xMidYMax meet"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          {/* Sky gradient that shifts warm→cool→warm with the sun */}
+          <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor="#ff0033" stopOpacity="0.55" />
+            <stop offset="55%"  stopColor="#ff6644" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#ffffff"  stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#fff0f2" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#ffffff"  stopOpacity="0" />
+          </linearGradient>
+          {/* Mountain fills */}
+          <linearGradient id="mtBack" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#ffccd5" />
+            <stop offset="100%" stopColor="#ffe8ec" />
+          </linearGradient>
+          <linearGradient id="mtMid" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#ffffff" />
+            <stop offset="100%" stopColor="#fff5f6" />
+          </linearGradient>
+          <linearGradient id="mtFront" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#fff8f9" />
+            <stop offset="100%" stopColor="#ffffff" />
+          </linearGradient>
+        </defs>
+
+        {/* Sky wash */}
+        <rect x="0" y="0" width="1200" height="480" fill="url(#skyGrad)" />
+
+        {/* Sun glow halo — animates up then back down */}
+        <ellipse className="hero-sun-glow" cx="600" cy="320" rx="180" ry="180" fill="url(#sunGlow)" />
+
+        {/* Sun disc */}
+        <circle className="hero-sun" cx="600" cy="340" r="52" fill="#ff0033" opacity="0.82" />
+        {/* Subtle rays */}
+        <g className="hero-sun-rays" strokeWidth="2" stroke="#ff0033" strokeOpacity="0.25">
+          <line x1="600" y1="268" x2="600" y2="248" />
+          <line x1="600" y1="412" x2="600" y2="432" />
+          <line x1="528" y1="340" x2="508" y2="340" />
+          <line x1="672" y1="340" x2="692" y2="340" />
+          <line x1="549" y1="289" x2="535" y2="275" />
+          <line x1="651" y1="391" x2="665" y2="405" />
+          <line x1="651" y1="289" x2="665" y2="275" />
+          <line x1="549" y1="391" x2="535" y2="405" />
+        </g>
+
+        {/* Back mountain range */}
+        <path
+          fill="url(#mtBack)"
+          opacity="0.72"
+          d="M0,480 L0,290 L120,210 L240,260 L360,170 L480,240 L600,160 L720,240 L840,185 L960,250 L1080,210 L1200,270 L1200,480 Z"
+        />
+
+        {/* Mid mountain range */}
+        <path
+          fill="url(#mtMid)"
+          opacity="0.88"
+          d="M0,480 L0,330 L150,270 L300,320 L450,240 L600,300 L750,250 L900,310 L1050,265 L1200,310 L1200,480 Z"
+        />
+
+        {/* Front mountain/hill — almost white, clips the sun at bottom */}
+        <path
+          fill="url(#mtFront)"
+          opacity="1"
+          d="M0,480 L0,390 L200,340 L400,380 L550,320 L700,370 L900,330 L1100,370 L1200,350 L1200,480 Z"
+        />
+      </svg>
 
       {/* Single canvas for all particles — one GPU layer */}
       <canvas

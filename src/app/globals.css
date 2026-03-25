@@ -202,108 +202,40 @@ img {
   margin-top: -64px;
 }
 
-.hero-scenery {
+/* ─── HERO SVG SCENERY (sun + mountains) ─────────── */
+.hero-scenery-svg {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
 }
 
-.hero-mountain {
-  position: absolute;
-  left: -6%;
-  right: -6%;
-  border-radius: 42% 58% 0 0 / 56% 54% 0 0;
-  filter: blur(0.2px);
+/* Sun arc: rises from below the front hill, peaks above mid-mountains, sets again */
+.hero-sun {
+  animation: sunRise 12s ease-in-out infinite;
+  transform-origin: 600px 480px; /* pivot at base-centre */
 }
 
-.hero-mountain-back {
-  bottom: -34%;
-  height: 54%;
-  background: linear-gradient(180deg, rgba(255, 0, 51, 0.12) 0%, rgba(255, 0, 51, 0.07) 65%, rgba(255, 0, 51, 0.02) 100%);
-  transform: translate3d(calc(var(--px, 0px) * -0.3), calc(var(--py, 0px) * -0.2), 0);
+.hero-sun-glow {
+  animation: sunRise 12s ease-in-out infinite;
+  transform-origin: 600px 480px;
 }
 
-.hero-mountain-mid {
-  bottom: -29%;
-  height: 48%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.74) 62%, rgba(255, 255, 255, 0.02) 100%);
-  box-shadow: 0 -30px 90px rgba(255, 255, 255, 0.65);
-  transform: translate3d(calc(var(--px, 0px) * -0.55), calc(var(--py, 0px) * -0.35), 0);
+.hero-sun-rays {
+  animation: sunRise 12s ease-in-out infinite;
+  transform-origin: 600px 480px;
 }
 
-.hero-cloud {
-  position: absolute;
-  height: 44px;
-  border-radius: 999px;
-  /* Layered cloud body: soft white mass + slight red tint */
-  background:
-    radial-gradient(26px 18px at 22% 58%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 70%),
-    radial-gradient(28px 20px at 48% 44%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 72%),
-    radial-gradient(24px 16px at 74% 60%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 72%),
-    linear-gradient(180deg, rgba(255, 60, 95, 0.1), rgba(255, 255, 255, 0.72));
-  border: 1px solid rgba(255, 120, 145, 0.16);
-  box-shadow:
-    0 8px 22px rgba(255, 0, 51, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
-  filter: blur(0.15px);
-}
-
-.hero-cloud span {
-  position: absolute;
-  display: block;
-  width: 34px;
-  height: 24px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 235, 242, 0.78));
-  border: 1px solid rgba(255, 135, 160, 0.14);
-  box-shadow: 0 6px 14px rgba(255, 0, 51, 0.08);
-}
-
-.hero-cloud-1 {
-  width: 132px;
-  top: 17%;
-  left: 9%;
-  transform: translate3d(calc(var(--px, 0px) * -0.15), calc(var(--py, 0px) * -0.12), 0);
-  animation: cloudDriftA 14s ease-in-out infinite alternate;
-}
-.hero-cloud-1 span:first-child { left: 18px; top: -14px; width: 44px; height: 28px; }
-.hero-cloud-1 span:last-child  { right: 16px; top: -10px; width: 36px; height: 24px; }
-
-.hero-cloud-2 {
-  width: 162px;
-  top: 24%;
-  right: 12%;
-  transform: translate3d(calc(var(--px, 0px) * -0.22), calc(var(--py, 0px) * -0.17), 0);
-  animation: cloudDriftB 18s ease-in-out infinite alternate;
-}
-.hero-cloud-2 span:first-child { left: 26px; top: -16px; width: 48px; height: 30px; }
-.hero-cloud-2 span:last-child  { right: 20px; top: -12px; width: 40px; height: 26px; }
-
-.hero-cloud-3 {
-  width: 108px;
-  top: 35%;
-  left: 28%;
-  transform: translate3d(calc(var(--px, 0px) * -0.18), calc(var(--py, 0px) * -0.14), 0);
-  animation: cloudDriftC 16s ease-in-out infinite alternate;
-}
-.hero-cloud-3 span:first-child { left: 14px; top: -12px; width: 38px; height: 24px; }
-.hero-cloud-3 span:last-child  { right: 12px; top: -9px; width: 30px; height: 20px; }
-
-@keyframes cloudDriftA {
-  from { margin-left: -10px; opacity: 0.5; }
-  to   { margin-left: 18px; opacity: 0.8; }
-}
-
-@keyframes cloudDriftB {
-  from { margin-right: -8px; opacity: 0.45; }
-  to   { margin-right: 14px; opacity: 0.75; }
-}
-
-@keyframes cloudDriftC {
-  from { margin-left: 0; opacity: 0.35; }
-  to   { margin-left: 16px; opacity: 0.65; }
+@keyframes sunRise {
+  0%   { transform: translateY(160px);  opacity: 0;    }
+  12%  { transform: translateY(80px);   opacity: 0.55; }
+  35%  { transform: translateY(0px);    opacity: 0.9;  }
+  50%  { transform: translateY(-24px);  opacity: 1;    }
+  65%  { transform: translateY(0px);    opacity: 0.9;  }
+  88%  { transform: translateY(80px);   opacity: 0.55; }
+  100% { transform: translateY(160px);  opacity: 0;    }
 }
 
 /* Globe badge — display: flex here so media query can override to none */
