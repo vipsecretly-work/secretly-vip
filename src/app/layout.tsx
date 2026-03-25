@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const siteFont = localFont({
-  src: "../../fonts/populaz-display-font/populaz.otf",
+  src: "../../public/Font/nagel-font/nagel.otf",
   variable: "--f-site",
 });
 
