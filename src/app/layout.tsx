@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteClosedScreen from "@/components/SiteClosedScreen";
 
 const readableFont = localFont({
   src: "../../public/Font/nagel-font/nagel.otf",
@@ -10,8 +9,8 @@ const readableFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "SECRETLY",
-  description: "Secretly",
+  title: "SECRETLY | Temporarily Closed",
+  description: "Secretly is temporarily closed.",
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
@@ -27,18 +26,14 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({
-  children,
+  children: _children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en" className={readableFont.variable}>
       <body>
-        <div className="app-frame">
-          <Navbar />
-          {children}
-          <Footer />
-        </div>
+        <SiteClosedScreen />
       </body>
     </html>
   );
